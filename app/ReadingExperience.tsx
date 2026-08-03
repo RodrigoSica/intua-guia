@@ -178,6 +178,46 @@ export default function ReadingExperience() {
     };
   }, []);
 
+  // A arte da frente (125-226KB cada) só entra no DOM quando a carta é
+  // escolhida — sem isso o download começa no clique e a carta gira exibindo
+  // a face preta até chegar. Aquece tudo em tempo ocioso, para não disputar
+  // banda com o carregamento inicial da página.
+  useEffect(() => {
+    let cancelled = false;
+
+    const warm = () => {
+      if (cancelled) return;
+      readings.forEach((reading) => {
+        const img = new Image();
+        img.src = reading.artwork;
+        void img.decode?.().catch(() => {});
+      });
+    };
+
+    type IdleWindow = Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    const scope = window as IdleWindow;
+    const idle = scope.requestIdleCallback;
+    const handle = idle ? idle(warm, { timeout: 2500 }) : window.setTimeout(warm, 1200);
+
+    return () => {
+      cancelled = true;
+      if (idle && scope.cancelIdleCallback) scope.cancelIdleCallback(handle);
+      else window.clearTimeout(handle);
+    };
+  }, []);
+
+  // Rede de segurança: se o clique vier antes do aquecimento ocioso terminar,
+  // a carta sob o cursor/toque já sobe de prioridade.
+  useEffect(() => {
+    if (activeIndex === null) return;
+    const img = new Image();
+    img.setAttribute("fetchpriority", "high");
+    img.src = readings[activeIndex].artwork;
+  }, [activeIndex]);
+
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
       if (event.key === "Escape" && phase === "detail") returnToDeck();

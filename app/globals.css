@@ -52,7 +52,7 @@ button { font: inherit; }
 /* Fixa no topo em toda a página (não só no hero), por isso carrega seu
    próprio fundo translúcido + blur — precisa continuar legível tanto sobre
    a foto do hero quanto sobre as seções claras abaixo. */
-.site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 60; display: flex; align-items: center; justify-content: space-between; height: 104px; padding: 0 clamp(38px, 5vw, 84px) 0 clamp(38px, 8vw, 152px); background: rgba(4,19,30,.66); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(197,154,90,.14); }
+.site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 60; display: flex; align-items: center; justify-content: space-between; height: 104px; padding: 0 clamp(38px, 5vw, 84px) 0 clamp(38px, 8vw, 152px); background: rgba(4,19,30,.9); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(197,154,90,.14); }
 .site-header nav { display: flex; gap: clamp(24px, 3.2vw, 46px); margin: 0 auto; }
 .site-header nav a { position: relative; color: rgba(249,236,220,.82); font-family: var(--ritual); font-size: 12px; font-weight: 400; letter-spacing: .17em; text-transform: uppercase; transition: color .25s ease; }
 .site-header nav a::after { content: ""; position: absolute; left: 0; bottom: -7px; width: 0; height: 1px; background: var(--gold); transition: width .3s ease; }

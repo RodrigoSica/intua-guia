@@ -1,0 +1,25 @@
+[2mDefault inspector port 9229 not available, using 9231 instead
+[22m
+[2m16:37:59[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22m[vinext] RSC HMR error: Error: Connection closed.
+    at close (http://localhost:3002/node_modules/.vite/deps/react-server-dom-webpack_client__browser.js?v=b21f6263:2364:36)
+    at progress (http://localhost:3002/node_modules/.vite/deps/react-server-dom-webpack_client__browser.js?v=b21f6263:2437:28)
+[2m16:38:01[22m [31m[1m[vite][22m[39m [31mInternal server error: Failed to load url /app/globals.css (resolved id: D:/CLIENTES STAND BY/Intua  Guia/landingpage/site 2.0/site 2.0 ago 26/novo_site_intua_guia_2.0_codex/app/globals.css) in D:/CLIENTES STAND BY/Intua  Guia/landingpage/site 2.0/site 2.0 ago 26/novo_site_intua_guia_2.0_codex/app/layout.tsx. Does the file exist?[39m
+      at runInRunnerObject (workers/runner-worker/index.js:107:3)
+      at getWorkerEntryExport (workers/runner-worker/index.js:235:17)
+      at null.<anonymous> (workers/runner-worker/index.js:354:24)
+      at maybeCaptureError (workers/runner-worker/index.js:51:10)
+[2m16:38:01[22m [31m[1m[vite][22m[39m [31mInternal server error: Failed to load url /app/globals.css (resolved id: D:/CLIENTES STAND BY/Intua  Guia/landingpage/site 2.0/site 2.0 ago 26/novo_site_intua_guia_2.0_codex/app/globals.css) in D:/CLIENTES STAND BY/Intua  Guia/landingpage/site 2.0/site 2.0 ago 26/novo_site_intua_guia_2.0_codex/app/layout.tsx. Does the file exist?[39m
+      at runInRunnerObject (workers/runner-worker/index.js:107:3)
+      at getWorkerEntryExport (workers/runner-worker/index.js:235:17)
+      at null.<anonymous> (workers/runner-worker/index.js:354:24)
+      at maybeCaptureError (workers/runner-worker/index.js:51:10)
+[2m16:38:01[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [2m[console.error] [22m[vinext] RSC HMR error: Error: Connection closed.
+    at close (http://localhost:3002/node_modules/.vite/deps/react-server-dom-webpack_client__browser.js?v=b21f6263:2364:36)
+    at progress (http://localhost:3002/node_modules/.vite/deps/react-server-dom-webpack_client__browser.js?v=b21f6263:2437:28)
+[2m16:38:01[22m [31m[1m[vite][22m[39m [31mInternal server error: Failed to load url /app/globals.css (resolved id: D:/CLIENTES STAND BY/Intua  Guia/landingpage/site 2.0/site 2.0 ago 26/novo_site_intua_guia_2.0_codex/app/globals.css) in D:/CLIENTES STAND BY/Intua  Guia/landingpage/site 2.0/site 2.0 ago 26/novo_site_intua_guia_2.0_codex/app/layout.tsx. Does the file exist?[39m
+      at runInRunnerObject (workers/runner-worker/index.js:107:3)
+      at getWorkerEntryExport (workers/runner-worker/index.js:235:17)
+      at null.<anonymous> (workers/runner-worker/index.js:354:24)
+      at maybeCaptureError (workers/runner-worker/index.js:51:10)
+Detected multiple renderers concurrently rendering the same context provider. This is currently unsupported.
+Detected multiple renderers concurrently rendering the same context provider. This is currently unsupported.
