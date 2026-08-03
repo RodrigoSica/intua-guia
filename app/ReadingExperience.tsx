@@ -107,7 +107,7 @@ const readings: Reading[] = [
   },
 ];
 
-type Phase = "browse" | "measure" | "opening" | "detail";
+type Phase = "browse" | "measure" | "opening" | "detail" | "closing";
 
 // Abertura do leque dirigida pela rolagem (scroll-driven / scrubbing):
 // o progresso vai de 0 (baralho empilhado, ao entrar na tela) a 1 (leque
@@ -165,6 +165,10 @@ export default function ReadingExperience() {
   const detailCardRef = useRef<HTMLDivElement | null>(null);
   const experienceRef = useRef<HTMLElement | null>(null);
   const sourceRef = useRef<FlightSource | null>(null);
+  // onFocus também seta activeIndex (equivalente de hover p/ teclado); sem
+  // isto, devolver o foco à carta ao voltar do detalhe reacende o mesmo
+  // destaque que acabamos de zerar. Suprime só essa única chamada programática.
+  const suppressFocusHighlightRef = useRef(false);
 
   useEffect(() => {
     const media = window.matchMedia("(hover: none), (pointer: coarse)");
@@ -363,9 +367,18 @@ export default function ReadingExperience() {
   }
 
   function returnToDeck() {
+    // O deck só reaparece de fato quando o fade de saída do detalhe termina
+    // (ver onAnimationEnd em .igu-detail) — mesmo padrão em espelho da entrada.
+    setPhase("closing");
+  }
+
+  function finishReturnToDeck() {
     setPhase("browse");
-    setActiveIndex(selectedIndex);
+    // null, não selectedIndex: a cena 1 deve voltar ao repouso — nenhuma
+    // carta "em destaque" — não à posição de hover/seleção anterior.
+    setActiveIndex(null);
     setFlight(null);
+    suppressFocusHighlightRef.current = true;
     window.setTimeout(() => cardRefs.current[selectedIndex]?.focus(), 80);
   }
 
@@ -394,7 +407,10 @@ export default function ReadingExperience() {
                 type="button"
                 onMouseEnter={() => !coarsePointer && phase === "browse" && setActiveIndex(index)}
                 onMouseLeave={() => !coarsePointer && phase === "browse" && setActiveIndex(null)}
-                onFocus={() => !coarsePointer && phase === "browse" && setActiveIndex(index)}
+                onFocus={() => {
+                  if (suppressFocusHighlightRef.current) { suppressFocusHighlightRef.current = false; return; }
+                  if (!coarsePointer && phase === "browse") setActiveIndex(index);
+                }}
                 onClick={() => chooseCard(index)}
                 aria-label={`${reading.name}. ${reading.short}${coarsePointer && activeIndex !== index ? ". Toque para conhecer." : ". Abrir leitura."}`}
               >
@@ -414,7 +430,7 @@ export default function ReadingExperience() {
 
       {flight && phase !== "browse" && (
         <div
-          className={`igu-flight-card ${phase === "detail" ? "is-landed" : ""}`}
+          className={`igu-flight-card ${phase === "detail" || phase === "closing" ? "is-landed" : ""}`}
           style={{
             "--from-x": `${flight.fromX}px`, "--from-y": `${flight.fromY}px`, "--from-w": `${flight.fromW}px`, "--from-h": `${flight.fromH}px`,
             "--from-r": `${flight.fromRotation}deg`, "--from-scale": flight.fromScale, "--mid-x": `${flight.midX}px`, "--mid-y": `${flight.midY}px`,
@@ -433,7 +449,13 @@ export default function ReadingExperience() {
         </div>
       )}
 
-      <section className="igu-detail" aria-hidden={phase !== "detail"}>
+      <section
+        className="igu-detail"
+        aria-hidden={phase !== "detail" && phase !== "closing"}
+        onAnimationEnd={(event) => {
+          if (event.target === event.currentTarget && event.animationName === "igu-detail-leave") finishReturnToDeck();
+        }}
+      >
         <div className="igu-detail-layout">
           <div className="igu-detail-card-column">
             <div className="igu-detail-glow" />

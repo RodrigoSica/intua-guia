@@ -95,10 +95,31 @@ button { font: inherit; }
 }
 .asset-slot { position: relative; }
 
-.about { position: relative; padding: 108px 0 100px; background: var(--cream); color: var(--ink); }
+.about { position: relative; padding: 108px 0 100px; background: #ffe2d4; color: var(--ink); }
 .about__grid { display: grid; grid-template-columns: minmax(300px, .82fr) minmax(410px, 1.18fr); align-items: center; gap: clamp(75px, 10vw, 148px); }
-.about__visual { display: flex; justify-content: center; }
-.about__portrait { position: relative; width: min(380px, 100%); aspect-ratio: 3 / 4; border: 1px solid rgba(197,154,90,.45); border-radius: 200px 200px 6px 6px; box-shadow: 0 30px 60px -20px rgba(9,37,53,.35); }
+.about__visual { --portrait-w: min(380px, 100%); position: relative; display: flex; justify-content: center; }
+/* Pictogramas ao redor do retrato. O <span> externo recebe o deslocamento de
+   parallax (--py, escrito pelo JS conforme a rolagem) e o <img> interno flutua
+   sozinho — separados para que as duas transformações não briguem. */
+.about__aura { position: absolute; z-index: 2; top: 0; bottom: 0; left: 50%; width: var(--portrait-w); transform: translateX(-50%); pointer-events: none; }
+.about__glyph { position: absolute; display: block; transform: translate3d(0, var(--py, 0px), 0); transition: transform .12s linear; will-change: transform; }
+.about__glyph img { display: block; width: 100%; height: auto; opacity: .92; animation: about-float var(--float, 8s) ease-in-out var(--float-delay, 0s) infinite; }
+/* Mesma linguagem do lift dos ícones de benefícios: deslocamento mínimo e
+   ease lento — presença, não protagonismo. */
+@keyframes about-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(.6deg); }
+}
+.about__glyph--estrela { top: -3%; left: -13%; width: 33%; }
+.about__glyph--visao { top: 38%; left: -16%; width: 30%; }
+.about__glyph--vela { bottom: -2%; left: -13%; width: 26%; }
+.about__glyph--cristal { top: 30%; right: -20%; width: 31%; }
+.about__glyph--maos { bottom: 0%; right: -16%; width: 30%; }
+@media (prefers-reduced-motion: reduce) {
+  .about__glyph { transform: none; }
+  .about__glyph img { animation: none; }
+}
+.about__portrait { position: relative; z-index: 1; width: min(380px, 100%); aspect-ratio: 3 / 4; border: 1px solid rgba(197,154,90,.45); border-radius: 200px 200px 6px 6px; box-shadow: 0 30px 60px -20px rgba(9,37,53,.35); }
 .about__portrait::after { content: ""; position: absolute; inset: 10px; border: 1px solid rgba(235,197,126,.4); border-radius: 190px 190px 3px 3px; pointer-events: none; }
 .about__portrait img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 14%; border-radius: inherit; filter: saturate(.94) contrast(1.02); }
 .about__mark { position: absolute; left: 50%; bottom: -17px; transform: translateX(-50%); color: var(--coral); font-family: Georgia, serif; font-size: 15px; background: var(--cream); padding: 0 14px; }
@@ -184,8 +205,15 @@ button { font: inherit; }
 /* --fan: progresso da abertura do leque (0 empilhado → 1 aberto), escrito
    pelo JS conforme a rolagem. O padrão 1 garante o leque aberto caso o JS
    não rode — a animação é melhoria progressiva, não requisito. */
-.igu-experience { --igu-navy: #092735; --igu-ink: #0a3040; --igu-cream: #fff1e7; --igu-gold: #a9633f; --igu-gold-bright: #7f3d32; --fan: 1; --fan-span: .79; position: relative; min-height: 840px; overflow: hidden; isolation: isolate; background: #ffe2d4; color: var(--igu-ink); }
-.igu-grain { position: absolute; inset: 0; z-index: -1; opacity: .12; pointer-events: none; background-image: repeating-radial-gradient(circle at 17% 23%, rgba(255,255,255,.55) 0 .45px, transparent .7px 4px), repeating-radial-gradient(circle at 71% 68%, rgba(10,48,64,.18) 0 .5px, transparent .8px 5px); background-size: 7px 7px, 9px 9px; mix-blend-mode: soft-light; }
+/* Vinheta radial centralizada no leque de cartas: clareia no centro e
+   aprofunda a cor para as bordas, puxando o olhar para o assunto central
+   da cena sem competir com o halo mais justo que já envolve as cartas. */
+.igu-experience { --igu-navy: #092735; --igu-ink: #0a3040; --igu-cream: #fff1e7; --igu-gold: #a9633f; --igu-gold-bright: #7f3d32; --fan: 1; --fan-span: .79; position: relative; min-height: 840px; overflow: hidden; isolation: isolate; background: radial-gradient(150% 105% at 50% 32%, #fffaf5 0%, #ffe2d4 58%, #f6c9a8 100%); color: var(--igu-ink); }
+/* Trama de tecido: duas linhas finíssimas (urdume + trama) cruzadas em
+   ângulo reto, período de 3px. mix-blend-mode: soft-light só modula luz/
+   sombra sobre a cor de baixo — não introduz nenhum tom novo, então o
+   gradiente da seção permanece intacto. */
+.igu-grain { position: absolute; inset: 0; z-index: -1; opacity: .12; pointer-events: none; background-image: repeating-radial-gradient(circle at 17% 23%, rgba(255,255,255,.55) 0 .45px, transparent .7px 4px), repeating-radial-gradient(circle at 71% 68%, rgba(10,48,64,.18) 0 .5px, transparent .8px 5px), repeating-linear-gradient(90deg, rgba(255,255,255,.5) 0 1px, transparent 1px 3px), repeating-linear-gradient(0deg, rgba(20,9,12,.4) 0 1px, transparent 1px 3px); background-size: 7px 7px, 9px 9px, 3px 3px, 3px 3px; mix-blend-mode: soft-light; }
 .igu-picker { width: min(1180px, calc(100% - 64px)); min-height: 840px; margin: 0 auto; padding: 28px 0 24px; display: grid; grid-template-rows: auto auto; transition: opacity .65s ease, filter .8s ease, transform 1s cubic-bezier(.22,1,.36,1); }
 .igu-deck-zone { position: relative; min-height: 730px; }
 .igu-deck-halo { position: absolute; top: 150px; left: 50%; width: min(940px, 88vw); height: 240px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(ellipse, rgba(190,140,90,.18), rgba(133,80,58,.06) 45%, transparent 72%); filter: blur(12px); }
@@ -199,9 +227,14 @@ button { font: inherit; }
 /* Sombra ambiente projetada no "tecido" abaixo da carta — separada da sombra
    de contato (box-shadow) para dar a leitura de duas fontes de luz. */
 .igu-deck-card::after { content: ""; position: absolute; z-index: -1; inset: 6px 10px 0; border-radius: inherit; background: radial-gradient(62% 54% at 50% 100%, rgba(41,17,20,.52), rgba(41,17,20,.2) 58%, transparent 78%); filter: blur(17px); transform: translateY(16px); opacity: .55; transition: opacity .4s ease, transform .4s ease; }
-.igu-deck-card:hover, .igu-deck-card.is-active, .igu-deck-card:focus-visible { z-index: 16; transform: translateX(-50%) translateX(calc(var(--slot) * 105px * var(--fan-local))) translateY(calc(var(--curve) * var(--fan-local) - 26px)) rotate(calc(var(--angle) * var(--fan-local))) scale(1.04); box-shadow: 0 4px 9px rgba(41,17,20,.3), 0 30px 48px -12px rgba(41,17,20,.44); filter: brightness(1.05) saturate(1.04); outline: none; }
-.igu-deck-card:hover::after, .igu-deck-card.is-active::after, .igu-deck-card:focus-visible::after { opacity: .8; transform: translateY(26px); }
-.igu-deck-card:hover .igu-card-face::before, .igu-deck-card.is-active .igu-card-face::before, .igu-deck-card:focus-visible .igu-card-face::before { opacity: 1; }
+.igu-deck-card.is-active { z-index: 16; transform: translateX(-50%) translateX(calc(var(--slot) * 105px * var(--fan-local))) translateY(calc(var(--curve) * var(--fan-local) - 26px)) rotate(calc(var(--angle) * var(--fan-local))) scale(1.04); box-shadow: 0 4px 9px rgba(41,17,20,.3), 0 30px 48px -12px rgba(41,17,20,.44); filter: brightness(1.05) saturate(1.04); outline: none; }
+.igu-deck-card.is-active::after { opacity: .8; transform: translateY(26px); }
+.igu-deck-card.is-active .igu-card-face::before { opacity: 1; }
+/* Foco por teclado ganha só um contorno — sem levantar a carta. O foco é
+   devolvido programaticamente após "voltar às leituras" (acessibilidade),
+   e se ele reaplicasse o mesmo destaque do hover a carta pareceria deslocada
+   do resto do leque, que é exatamente o que a cena de repouso não deve ter. */
+.igu-deck-card:focus-visible { outline: 1px solid rgba(235,197,126,.6); outline-offset: 4px; }
 .igu-deck-card.is-departing { opacity: 0; }
 .igu-card-face { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; isolation: isolate; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .igu-card-face img { display: block; width: 100%; height: 100%; border-radius: inherit; object-fit: contain; pointer-events: none; user-select: none; }
@@ -223,21 +256,33 @@ button { font: inherit; }
 .igu-reading-peek small { display: block; margin-top: 11px; color: var(--igu-gold-bright); font-family: var(--ritual); font-size: 11px; font-weight: 400; letter-spacing: .2em; text-transform: uppercase; }
 .igu-hint { position: relative; z-index: 10; margin: -10px 0 0; color: rgba(10,48,64,.55); font-family: var(--ritual); font-size: 12px; font-weight: 400; letter-spacing: .2em; text-align: center; text-transform: uppercase; }
 .igu-hint span { margin-right: 10px; color: var(--igu-gold-bright); font-size: 16px; }
-.igu-phase-measure .igu-picker, .igu-phase-opening .igu-picker { position: absolute; inset: 0; width: auto; min-height: 100%; opacity: .09; filter: blur(5px) saturate(.65); transform: scale(.965); pointer-events: none; }
+/* O baralho fica escondido atrás do overlay opaco do detalhe (não com
+   display:none) justamente para poder reaparecer com a mesma transição
+   suave de opacity/filter/transform que .igu-picker já tem definida — é o
+   que dá suavidade ao "voltar às leituras" em vez de um pop abrupto. */
+.igu-phase-measure .igu-picker, .igu-phase-opening .igu-picker, .igu-phase-detail .igu-picker, .igu-phase-closing .igu-picker { position: absolute; inset: 0; width: auto; min-height: 100%; opacity: .09; filter: blur(5px) saturate(.65); transform: scale(.965); pointer-events: none; }
 .igu-flight-card { position: fixed; top: 0; left: 0; z-index: 100; width: var(--from-w); height: var(--from-h); border-radius: 10px; perspective: 1400px; transform-origin: 50% 50%; animation: igu-flight-path 1.9s linear forwards; will-change: transform; contain: layout; }
 .igu-flight-card__inner { position: absolute; inset: 0; border-radius: inherit; transform-style: preserve-3d; animation: igu-card-reveal 1.9s linear forwards; will-change: transform; }
 .igu-flight-card .igu-card-face { border-radius: inherit; filter: drop-shadow(0 24px 24px rgba(41,17,20,.42)); }
-.igu-flight-card.is-landed { position: absolute; animation: none; transform: translate3d(var(--to-local-x), var(--to-local-y), 0) rotateZ(0deg) scale(var(--to-scale)); }
+.igu-flight-card.is-landed { position: absolute; animation: none; transform: translate3d(var(--to-local-x), var(--to-local-y), 0) rotateZ(0deg) scale(var(--to-scale)); transition: opacity .45s ease; }
 .igu-flight-card.is-landed .igu-flight-card__inner { animation: none; transform: rotateY(180deg); }
+/* z-index:100 do card de voo fica acima de .igu-detail (40), então sem isto
+   ele não acompanharia o fade da cena — sumiria de golpe quando a fase virasse
+   "browse" em vez de desaparecer junto com o resto. */
+.igu-phase-closing .igu-flight-card.is-landed { opacity: 0; }
 .igu-whisper { position: fixed; bottom: 7vh; left: 50%; z-index: 110; display: flex; align-items: center; gap: 14px; color: rgba(10,48,64,.72); font-family: var(--ritual); font-size: 11px; font-weight: 400; letter-spacing: .3em; text-transform: uppercase; opacity: 0; pointer-events: none; transform: translate(-50%,8px); transition: opacity .4s ease .35s, transform .5s ease .35s; }
 .igu-whisper.is-visible { opacity: 1; transform: translate(-50%,0); }
 .igu-whisper span { width: 22px; height: 1px; background: var(--igu-gold); }
 @keyframes igu-flight-path { 0% { transform: translate3d(var(--from-x),var(--from-y),0) rotateZ(var(--from-r)) scale(var(--from-scale)); animation-timing-function: cubic-bezier(.2,.72,.25,1); } 36% { transform: translate3d(var(--mid-x),var(--mid-y),0) rotateZ(-1.6deg) scale(var(--mid-scale)); animation-timing-function: cubic-bezier(.42,0,.25,1); } 52% { transform: translate3d(var(--mid-x),calc(var(--mid-y) - 10px),0) rotateZ(.8deg) scale(var(--mid-scale)); animation-timing-function: cubic-bezier(.42,0,.58,1); } 66% { transform: translate3d(var(--mid-x),var(--mid-y),0) rotateZ(0deg) scale(var(--mid-scale)); animation-timing-function: cubic-bezier(.25,.8,.24,1); } 100% { transform: translate3d(var(--to-x),var(--to-y),0) rotateZ(0deg) scale(var(--to-scale)); } }
 @keyframes igu-card-reveal { 0% { transform: rotateY(0deg); animation-timing-function: cubic-bezier(.42,0,.17,1); } 70% { transform: rotateY(180deg); } 100% { transform: rotateY(180deg); } }
 .igu-detail { position: absolute; inset: 0; z-index: 40; min-height: 100%; padding: 54px clamp(38px,7vw,112px); background: #ffe2d4; visibility: hidden; opacity: 0; pointer-events: none; }
-.igu-phase-detail .igu-picker { display: none; }
 .igu-phase-detail .igu-detail { visibility: visible; opacity: 1; pointer-events: auto; animation: igu-detail-arrival .75s ease both; }
 @keyframes igu-detail-arrival { from { opacity: 0; } to { opacity: 1; } }
+/* Saída em espelho da entrada: mesmo fade, sentido contrário. Fica visível
+   (não pode ser display:none) até o fim da animação, quando o onAnimationEnd
+   do componente finalmente troca a fase para "browse". */
+.igu-phase-closing .igu-detail { visibility: visible; opacity: 0; pointer-events: none; animation: igu-detail-leave .5s ease both; }
+@keyframes igu-detail-leave { from { opacity: 1; } to { opacity: 0; } }
 .igu-back-button { position: relative; z-index: 4; min-height: 50px; padding: 14px 17px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(127,61,50,.25); background: rgba(255,244,238,.22); color: rgba(10,48,64,.62); font-family: var(--ritual); font-size: 10px; font-weight: 400; letter-spacing: .17em; text-transform: uppercase; cursor: pointer; transition: color .25s ease, border-color .25s ease, background .25s ease, transform .25s ease; }
 .igu-back-button:hover { border-color: rgba(127,61,50,.56); background: rgba(255,244,238,.5); color: var(--igu-gold-bright); transform: translateY(-2px); }
 .igu-back-button span { margin-right: 9px; font-size: 15px; }
@@ -383,7 +428,14 @@ footer { padding: 24px 0; background: var(--navy); }
   .hero h1 { font-size: clamp(38px, 9.6vw, 52px); margin-top: 20px; line-height: 1.14; text-wrap: pretty; }
   .hero h1 br { display: none; }
   .hero__rule { margin: 26px 0 20px; } .hero__intro { font-size: 16px; } .hero__actions { margin-top: 30px; } .hero__actions .button { flex: 1 1 auto; }
-  .about { padding: 64px 0; } .about__visual { order: 2; margin-top: 8px; } .about__portrait { width: min(280px, 72vw); } .about__copy { order: 1; }
+  .about { padding: 64px 0; } .about__visual { order: 2; margin-top: 8px; --portrait-w: min(280px, 72vw); } .about__portrait { width: var(--portrait-w); } .about__copy { order: 1; }
+  /* No mobile a coluna é estreita: os pictogramas encolhem e os laterais
+     recuam para não invadirem a borda da tela. */
+  .about__glyph--estrela { width: 27%; top: -6%; left: -9%; }
+  .about__glyph--visao { width: 24%; left: -12%; }
+  .about__glyph--vela { width: 21%; left: -9%; }
+  .about__glyph--cristal { width: 25%; right: -13%; }
+  .about__glyph--maos { width: 24%; right: -11%; }
   .benefits, .testimonials { padding: 60px 0; } .benefit-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 38px; } .benefit-card { padding: 23px 16px 21px; }
   .benefit-card__icon { width: 68px; height: 68px; margin-bottom: 14px; } .benefit-card h3 { font-size: 19px; } .benefit-card p { font-size: 14px; }
   .reading-preview { grid-template-columns: repeat(3, 1fr); gap: 9px; } .reading-card { min-height: 145px; } .reading-card h3 { font-size: 12px; } .reading-card__icon { font-size: 30px; }
@@ -412,7 +464,7 @@ footer { padding: 24px 0; background: var(--navy); }
    ele precisa encolher para não ser cortado pelo overflow da seção. */
 @media (min-width: 760px) and (max-width: 1080px) {
   .igu-deck-card { --card-w: 176px; --card-h: 275px; transform: translateX(-50%) translateX(calc(var(--slot) * 88px * var(--fan-local))) translateY(calc(var(--curve) * var(--fan-local))) rotate(calc(var(--angle) * var(--fan-local))); }
-  .igu-deck-card:hover, .igu-deck-card.is-active, .igu-deck-card:focus-visible { transform: translateX(-50%) translateX(calc(var(--slot) * 88px * var(--fan-local))) translateY(calc(var(--curve) * var(--fan-local) - 26px)) rotate(calc(var(--angle) * var(--fan-local))) scale(1.04); }
+  .igu-deck-card.is-active { transform: translateX(-50%) translateX(calc(var(--slot) * 88px * var(--fan-local))) translateY(calc(var(--curve) * var(--fan-local) - 26px)) rotate(calc(var(--angle) * var(--fan-local))) scale(1.04); }
   .igu-card-stage { height: 330px; }
   .igu-deck-zone { min-height: 672px; }
   .igu-reading-peek { top: 460px; }
@@ -428,14 +480,14 @@ footer { padding: 24px 0; background: var(--navy); }
   .igu-card-stage { top: 28px; height: 282px; }
   .igu-deck-halo { top: 143px; width: 116vw; height: 168px; }
   .igu-deck-card { --card-w: 138px; --card-h: 216px; transform: translateX(-50%) translateX(calc(var(--slot) * 60px * var(--fan-local))) translateY(calc(var(--curve-mobile) * var(--fan-local))) rotate(calc(var(--angle) * var(--fan-local))); }
-  .igu-deck-card:hover, .igu-deck-card.is-active, .igu-deck-card:focus-visible { transform: translateX(-50%) translateX(calc(var(--slot) * 60px * var(--fan-local))) translateY(calc(var(--curve-mobile) * var(--fan-local) - 18px)) rotate(calc(var(--angle) * var(--fan-local))) scale(1.04); }
+  .igu-deck-card.is-active { transform: translateX(-50%) translateX(calc(var(--slot) * 60px * var(--fan-local))) translateY(calc(var(--curve-mobile) * var(--fan-local) - 18px)) rotate(calc(var(--angle) * var(--fan-local))) scale(1.04); }
   .igu-reading-peek { top: 404px; width: calc(100% - 44px); height: 184px; padding: 22px 16px 14px; }
   .igu-reading-peek h3 { font-size: 27px; }
   .igu-reading-peek > span { font-size: 14px; }
   .igu-hint { margin-top: -6px; font-size: 11px; line-height: 1.45; }
   .igu-whisper { bottom: 4vh; width: 100%; justify-content: center; }
   .igu-detail { min-height: 880px; padding: 27px 22px 35px; }
-  .igu-phase-detail { min-height: 880px; }
+  .igu-phase-detail, .igu-phase-closing { min-height: 880px; }
   .igu-detail-layout { min-height: auto; grid-template-columns: 1fr; gap: 2px; padding-top: 5px; }
   .igu-detail-card-column { width: 100%; min-height: 310px; align-items: flex-start; padding-left: 12px; }
   .igu-detail-card { width: 186px; height: 291px; }

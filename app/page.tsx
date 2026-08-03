@@ -187,6 +187,7 @@ export default function Home() {
       <section className="about" id="sobre">
         <div className="container about__grid">
           <div className="about__visual asset-slot" data-asset-slot="retrato da Vanessa">
+            <AboutGlyphs />
             <div className="about__portrait">
               <img src="/vanessa-oficial.png" alt="Vanessa segurando cartas de tarot" />
               <span className="about__mark" aria-hidden="true">✦</span>
@@ -259,3 +260,4 @@ export default function Home() {
   );
 }
 import ReadingExperience from "./ReadingExperience";
+import AboutGlyphs from "./AboutGlyphs";
