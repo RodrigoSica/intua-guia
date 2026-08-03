@@ -238,9 +238,9 @@ button { font: inherit; }
 .igu-phase-detail .igu-picker { display: none; }
 .igu-phase-detail .igu-detail { visibility: visible; opacity: 1; pointer-events: auto; animation: igu-detail-arrival .75s ease both; }
 @keyframes igu-detail-arrival { from { opacity: 0; } to { opacity: 1; } }
-.igu-back-button { position: relative; z-index: 4; padding: 8px 0; border: 0; background: transparent; color: rgba(10,48,64,.66); font-family: var(--ritual); font-size: 12px; font-weight: 400; letter-spacing: .2em; text-transform: uppercase; cursor: pointer; transition: color .25s ease; }
-.igu-back-button:hover { color: var(--igu-gold-bright); }
-.igu-back-button span { margin-right: 10px; font-size: 17px; }
+.igu-back-button { position: relative; z-index: 4; min-height: 50px; padding: 14px 17px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(127,61,50,.25); background: rgba(255,244,238,.22); color: rgba(10,48,64,.62); font-family: var(--ritual); font-size: 10px; font-weight: 400; letter-spacing: .17em; text-transform: uppercase; cursor: pointer; transition: color .25s ease, border-color .25s ease, background .25s ease, transform .25s ease; }
+.igu-back-button:hover { border-color: rgba(127,61,50,.56); background: rgba(255,244,238,.5); color: var(--igu-gold-bright); transform: translateY(-2px); }
+.igu-back-button span { margin-right: 9px; font-size: 15px; }
 .igu-detail-layout { width: min(1140px,100%); min-height: 660px; margin: 0 auto; display: grid; grid-template-columns: 286px minmax(420px,1fr); align-items: center; gap: clamp(62px,9vw,132px); }
 .igu-detail-card-column { position: relative; display: flex; flex-direction: column; align-items: center; }
 .igu-detail-glow { position: absolute; top: 42%; left: 50%; width: 440px; height: 440px; border-radius: 50%; background: radial-gradient(circle, rgba(169,99,63,.2), transparent 67%); transform: translate(-50%,-50%); filter: blur(20px); }
@@ -264,7 +264,9 @@ button { font: inherit; }
 .igu-points ul { margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 11px 26px; list-style: none; }
 .igu-points li { color: rgba(10,48,64,.82); font-size: 15px; font-weight: 300; }
 .igu-points li span { margin-right: 9px; color: var(--igu-gold); font-size: 9px; }
+.igu-detail-actions { margin-top: 32px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
 .igu-cta { min-width: 254px; margin-top: 32px; padding: 17px 22px 17px 26px; display: inline-flex; align-items: center; justify-content: space-between; gap: 32px; border: 1px solid rgba(127,61,50,.72); background: var(--igu-gold-bright); color: #fff5ef; font-family: var(--ritual); font-size: 12px; font-weight: 400; letter-spacing: .18em; text-transform: uppercase; transition: transform .25s ease, background .25s ease, color .25s ease; }
+.igu-detail-actions .igu-cta { margin-top: 0; }
 .igu-cta:hover { background: transparent; color: var(--igu-gold-bright); transform: translateY(-2px); }
 .igu-cta span { font-size: 17px; }
 
@@ -445,5 +447,7 @@ footer { padding: 24px 0; background: var(--navy); }
   .igu-highlight-grid { grid-template-columns: 1fr; }
   .igu-highlight { min-height: 72px; padding: 13px 14px; }
   .igu-points { margin-top: 22px; }
+  .igu-detail-actions { flex-direction: column; align-items: stretch; gap: 12px; }
   .igu-cta { width: 100%; }
+  .igu-back-button { width: 100%; }
 }

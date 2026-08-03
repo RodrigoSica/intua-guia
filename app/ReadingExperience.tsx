@@ -394,7 +394,6 @@ export default function ReadingExperience() {
       )}
 
       <section className="igu-detail" aria-hidden={phase !== "detail"}>
-        <button className="igu-back-button" type="button" onClick={returnToDeck}><span aria-hidden="true">←</span> Voltar às leituras</button>
         <div className="igu-detail-layout">
           <div className="igu-detail-card-column">
             <div className="igu-detail-glow" />
@@ -409,7 +408,10 @@ export default function ReadingExperience() {
               {selected.highlights.map((highlight) => <div className="igu-highlight" key={highlight.label}><i>{highlight.icon}</i><div><small>{highlight.label}</small><strong>{highlight.text}</strong></div></div>)}
             </div>
             <div className="igu-points"><p>Pontos trabalhados</p><ul>{selected.points.map((point) => <li key={point}><span>✦</span>{point}</li>)}</ul></div>
-            <a className="igu-cta" href={selectedBookingUrl} target="_blank" rel="noopener noreferrer">Agendar esta leitura <span>→</span></a>
+            <div className="igu-detail-actions">
+              <a className="igu-cta" href={selectedBookingUrl} target="_blank" rel="noopener noreferrer">Agendar esta leitura <span>→</span></a>
+              <button className="igu-back-button" type="button" onClick={returnToDeck}><span aria-hidden="true">←</span> Voltar às leituras</button>
+            </div>
           </div>
         </div>
       </section>
