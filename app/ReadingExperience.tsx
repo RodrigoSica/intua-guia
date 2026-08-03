@@ -115,6 +115,7 @@ type Phase = "browse" | "measure" | "opening" | "detail";
 // início, e FAN_LAG_SPAN normaliza para que a última ainda chegue a 1.
 const FAN_LAG_STEP = 0.07;
 const FAN_LAG_SPAN = 1 - FAN_LAG_STEP * 3;
+const FAN_COMPLETE_VIEWPORT_RATIO = 0.67;
 
 type FlightSource = {
   index: number;
@@ -186,7 +187,8 @@ export default function ReadingExperience() {
   });
 
   // Scrubbing: --fan acompanha a travessia da seção pela viewport, de 0 quando
-  // ela começa a entrar até 1 quando o centro dela encontra o centro da tela.
+  // ela começa a entrar até 1 um pouco antes de o centro dela encontrar o
+  // centro da tela, mantendo o leque aberto por mais tempo no enquadramento.
   // useLayoutEffect para o valor certo já valer no primeiro pintura, sem flash.
   useLayoutEffect(() => {
     const section = experienceRef.current;
@@ -208,7 +210,7 @@ export default function ReadingExperience() {
       const viewport = window.innerHeight;
       const center = rect.top + rect.height / 2;
       const from = viewport + rect.height / 2;
-      const to = viewport / 2;
+      const to = viewport * FAN_COMPLETE_VIEWPORT_RATIO;
       const next = Math.min(1, Math.max(0, (from - center) / (from - to)));
       if (Math.abs(next - last) < 0.002) return;
       last = next;
