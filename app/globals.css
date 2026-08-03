@@ -212,7 +212,7 @@ button { font: inherit; }
 .igu-card-face::after { content: ""; position: absolute; inset: 0; z-index: 3; border-radius: inherit; pointer-events: none; box-shadow: inset 0 1px 0 rgba(255,248,236,.34), inset 1px 0 0 rgba(255,248,236,.16), inset 0 -1px 0 rgba(22,7,11,.38), inset -1px 0 0 rgba(22,7,11,.24); }
 .igu-card-back { background: #d94f55; }
 .igu-card-front { background: #050505; transform: rotateY(180deg); }
-.igu-reading-peek { position: absolute; top: 545px; left: 50%; width: min(560px, calc(100% - 40px)); min-height: 128px; padding: 26px 28px 16px; transform: translateX(-50%) translateY(7px); text-align: center; opacity: .62; transition: opacity .35s ease, transform .45s cubic-bezier(.22,1,.36,1); }
+.igu-reading-peek { position: absolute; top: 512px; left: 50%; width: min(560px, calc(100% - 40px)); height: 176px; padding: 26px 28px 16px; transform: translateX(-50%) translateY(7px); text-align: center; opacity: .62; transition: opacity .35s ease, transform .45s cubic-bezier(.22,1,.36,1); }
 /* Filete curto e centralizado, com as pontas dissolvendo — substitui o
    border-top que atravessava a caixa inteira. */
 .igu-reading-peek::before { content: ""; position: absolute; top: 0; left: 50%; width: 168px; height: 1px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, rgba(127,61,50,.6) 28%, rgba(127,61,50,.6) 72%, transparent); }
@@ -415,7 +415,7 @@ footer { padding: 24px 0; background: var(--navy); }
   .igu-deck-card:hover, .igu-deck-card.is-active, .igu-deck-card:focus-visible { transform: translateX(-50%) translateX(calc(var(--slot) * 88px * var(--fan-local))) translateY(calc(var(--curve) * var(--fan-local) - 26px)) rotate(calc(var(--angle) * var(--fan-local))) scale(1.04); }
   .igu-card-stage { height: 330px; }
   .igu-deck-zone { min-height: 672px; }
-  .igu-reading-peek { top: 492px; }
+  .igu-reading-peek { top: 460px; }
   .igu-experience, .igu-picker { min-height: 790px; }
   .igu-detail-layout { grid-template-columns: 240px minmax(360px,1fr); }
   .igu-detail-card { width: 226px; height: 353px; }
@@ -429,7 +429,7 @@ footer { padding: 24px 0; background: var(--navy); }
   .igu-deck-halo { top: 143px; width: 116vw; height: 168px; }
   .igu-deck-card { --card-w: 138px; --card-h: 216px; transform: translateX(-50%) translateX(calc(var(--slot) * 60px * var(--fan-local))) translateY(calc(var(--curve-mobile) * var(--fan-local))) rotate(calc(var(--angle) * var(--fan-local))); }
   .igu-deck-card:hover, .igu-deck-card.is-active, .igu-deck-card:focus-visible { transform: translateX(-50%) translateX(calc(var(--slot) * 60px * var(--fan-local))) translateY(calc(var(--curve-mobile) * var(--fan-local) - 18px)) rotate(calc(var(--angle) * var(--fan-local))) scale(1.04); }
-  .igu-reading-peek { top: 434px; width: calc(100% - 44px); min-height: 140px; padding: 22px 16px 14px; }
+  .igu-reading-peek { top: 404px; width: calc(100% - 44px); height: 184px; padding: 22px 16px 14px; }
   .igu-reading-peek h3 { font-size: 27px; }
   .igu-reading-peek > span { font-size: 14px; }
   .igu-hint { margin-top: -6px; font-size: 11px; line-height: 1.45; }
