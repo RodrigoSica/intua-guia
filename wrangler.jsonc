@@ -24,12 +24,15 @@
     // `deploy` direto a partir daqui, rode o build primeiro.
     "directory": "./dist/client"
   },
-  // D1/R2 ainda não estão em uso (.openai/hosting.json tem d1:null, r2:null).
-  // Quando ativar D1, adicione o binding aqui E garanta que
-  // .openai/hosting.json aponte para ele, para os dois caminhos (build
-  // automático e wrangler manual) ficarem consistentes:
-  //
-  // "d1_databases": [
-  //   { "binding": "DB", "database_name": "site-creator-d1", "database_id": "<id-real>" }
-  // ]
+  // Fonte única do binding D1 — deixado só aqui (não repetido em
+  // .openai/hosting.json) porque o vite.config.ts já faz merge deste
+  // arquivo com a config local; declarar nos dois lugares criaria dois
+  // bindings "DB" conflitantes.
+  "d1_databases": [
+    { "binding": "DB", "database_name": "intua-guia-db", "database_id": "b03b0e9c-077c-4381-ba35-cf12349b0de4" }
+  ],
+  // Armazena os áudios e fotos das leituras (ver docs/plano-sala-de-leitura.md).
+  "r2_buckets": [
+    { "binding": "MIDIA", "bucket_name": "intua-guia-midia" }
+  ]
 }
