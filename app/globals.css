@@ -42,7 +42,7 @@ button { font: inherit; }
 .button--ink { background: var(--ink); color: var(--cream); }
 .button--small { min-height: 40px; padding: 0 21px; font-size: 11px; letter-spacing: .15em; }
 
-.hero { position: relative; min-height: min(820px, 100vh); padding-top: 104px; display: flex; overflow: hidden; isolation: isolate; background: url("/hero-banner.png") 60% center / cover no-repeat; }
+.hero { position: relative; min-height: min(820px, 100vh); padding-top: 104px; display: flex; overflow: hidden; isolation: isolate; background: url("/hero-banner.webp") 60% center / cover no-repeat; }
 .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(97deg, rgba(2,14,23,.92) 0%, rgba(2,14,23,.84) 34%, rgba(2,14,23,.52) 52%, rgba(2,14,23,.12) 66%, transparent 76%); }
 .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(2,14,23,.55) 0%, transparent 22%, transparent 74%, rgba(4,27,41,.85) 100%); }
 /* O hero é assimétrico por natureza (vazio à esquerda da foto, mão/cartas à
@@ -383,7 +383,7 @@ button { font: inherit; }
   .faq-item, .faq-item::before, .faq-question__text, .faq-question__icon, .faq-question__icon i, .faq-answer, .faq__help { transition-duration: .01ms !important; }
 }
 
-.closing-cta { position: relative; overflow: hidden; min-height: 305px; display: grid; place-items: center; background: linear-gradient(rgba(3,17,27,.12), rgba(3,17,27,.18)), url("/imagem_banners_seu_proximo_passo.png") center / cover no-repeat, #061a27; }
+.closing-cta { position: relative; overflow: hidden; min-height: 305px; display: grid; place-items: center; background: linear-gradient(rgba(3,17,27,.12), rgba(3,17,27,.18)), url("/imagem_banners_seu_proximo_passo.webp") center / cover no-repeat, #061a27; }
 .closing-cta__content { position: relative; z-index: 2; padding: 45px 0; text-align: center; }
 .closing-cta h2 { margin: 9px 0 0; color: var(--cream-deep); font-family: var(--serif); font-size: clamp(38px, 4vw, 57px); font-weight: 600; line-height: .97; letter-spacing: -.035em; }
 .closing-cta .section-mark { color: var(--gold); margin-bottom: 19px; }
