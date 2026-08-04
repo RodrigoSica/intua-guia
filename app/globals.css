@@ -220,6 +220,8 @@ button { font: inherit; }
    do resto do leque, que é exatamente o que a cena de repouso não deve ter. */
 .igu-deck-card:focus-visible { outline: 1px solid rgba(235,197,126,.6); outline-offset: 4px; }
 .igu-deck-card.is-departing { opacity: 0; }
+/* Rótulos de texto do menu mobile: no desktop as cartas são só arte. */
+.igu-menu-item { display: none; }
 .igu-card-face { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; isolation: isolate; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .igu-card-face img { display: block; width: 100%; height: 100%; border-radius: inherit; object-fit: contain; pointer-events: none; user-select: none; }
 /* Brilho especular: luz entrando pelo alto à esquerda, escurecendo em direção
@@ -456,37 +458,49 @@ footer { padding: 24px 0; background: var(--navy); }
 }
 
 @media (max-width: 759px) {
-  .igu-experience { min-height: 700px; }
-  .igu-picker { width: min(100% - 38px, 560px); min-height: 700px; padding: 20px 0 22px; }
-  /* Tela vertical pede disposição vertical: em vez do leque horizontal (que
-     precisaria de 637px numa tela de 375px), as cartas descem em cascata
-     diagonal. Cada carta expõe uma faixa de 58px de altura pela largura
-     inteira — alvo de toque muito maior que a fatia de 28px que um leque
-     comprimido daria. O leque horizontal do desktop fica intacto. */
-  .igu-deck-zone { display: flex; flex-direction: column; min-height: 0; overflow: visible; }
-  .igu-reading-peek { order: 1; position: static; width: 100%; height: auto; min-height: 150px; margin-bottom: 18px; padding: 22px 16px 14px; transform: none; }
-  .igu-reading-peek.is-visible { transform: none; }
-  .igu-reading-peek-icon { position: static; height: 46px; margin: 0 auto 8px; }
-  .igu-reading-peek h3 { font-size: 27px; }
-  .igu-reading-peek > span { font-size: 14px; }
-  .igu-card-stage { order: 2; position: relative; top: auto; right: auto; left: auto; height: 632px; }
-  .igu-deck-halo { top: 40%; width: 90vw; height: 380px; }
-  /* --slot vai de -3 a 3; 174px = 3 x 58 mantém a pilha centrada quando
-     --fan-local é 0 (cartas empilhadas antes da rolagem abrir a cascata). */
+  .igu-experience { min-height: 0; }
+  .igu-picker { width: min(100% - 38px, 560px); min-height: 0; padding: 20px 0 34px; }
+  /* No mobile o baralho vira menu de lista: as cartas em leque não cabiam
+     (637px numa tela de 375px) e a cascata vertical ficou pesada. Aqui o
+     nome da leitura fica visível de saída, o toque é direto e a seção
+     encolhe bastante. O leque do desktop não é tocado. */
+  .igu-deck-zone { display: block; min-height: 0; overflow: visible; }
+  .igu-deck-halo, .igu-reading-peek, .igu-hint { display: none; }
+  .igu-card-stage {
+    position: relative; top: auto; right: auto; left: auto;
+    height: auto; perspective: none;
+    display: flex; flex-direction: column;
+    margin-top: 26px;
+    border-top: 1px solid rgba(127,61,50,.16);
+  }
   .igu-deck-card {
-    --card-w: 168px; --card-h: 263px;
-    top: calc(174px + var(--slot) * 58px * var(--fan-local));
-    bottom: auto;
-    z-index: calc(var(--slot) + 4);
-    transform-origin: 50% 50%;
-    transform: translateX(-50%) translateX(calc(var(--slot) * 13px * var(--fan-local))) rotate(calc(var(--slot) * 2.2deg * var(--fan-local)));
+    position: relative; top: auto; bottom: auto; left: auto;
+    width: 100%; height: auto; min-height: 78px;
+    z-index: auto;
+    display: flex; align-items: center;
+    padding: 17px 34px 17px 2px;
+    border-radius: 0;
+    border-bottom: 1px solid rgba(127,61,50,.16);
+    box-shadow: none;
+    text-align: left;
+    transition: background .25s ease;
   }
-  .igu-deck-card.is-active {
-    z-index: 16;
-    transform: translateX(-50%) translateX(calc(var(--slot) * 13px * var(--fan-local))) rotate(calc(var(--slot) * 2.2deg * var(--fan-local))) scale(1.06);
+  /* .is-active tem especificidade maior que a regra base, por isso entra
+     junto — senão o transform do leque voltaria a valer. */
+  .igu-deck-card, .igu-deck-card.is-active { transform: none; filter: none; box-shadow: none; }
+  .igu-deck-card:active { background: rgba(127,61,50,.06); }
+  .igu-deck-card::after { display: none; }
+  .igu-deck-card::before {
+    content: "→"; position: absolute; top: 50%; right: 6px;
+    transform: translateY(-50%);
+    color: var(--igu-gold); font-size: 17px; line-height: 1;
   }
-  .igu-deck-card::after { inset: 8px 12px 0; transform: translateY(10px); }
-  .igu-hint { margin-top: -6px; font-size: 11px; line-height: 1.45; }
+  /* A arte da carta some só aqui no baralho — o card do detalhe e o de voo
+     usam .igu-card-face também e precisam continuar visíveis. */
+  .igu-deck-card .igu-card-face { display: none; }
+  .igu-menu-item { display: flex; flex-direction: column; gap: 5px; width: 100%; }
+  .igu-menu-item__nome { color: var(--igu-ink); font-family: var(--serif); font-size: 21px; font-weight: 600; line-height: 1.15; }
+  .igu-menu-item__short { color: rgba(10,48,64,.62); font-size: 13px; font-weight: 300; line-height: 1.45; }
   .igu-whisper { bottom: 4vh; width: 100%; justify-content: center; }
   /* min-height precisa cobrir o conteúdo real: com uma coluna só, a cena 2
      mede ~1090px. Em 880px o CTA e o "voltar" vazavam para fora da seção. */

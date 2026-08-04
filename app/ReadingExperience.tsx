@@ -175,6 +175,10 @@ export default function ReadingExperience() {
   const [selectedIndex, setSelectedIndex] = useState(2);
   const [flight, setFlight] = useState<Flight | null>(null);
   const [coarsePointer, setCoarsePointer] = useState(false);
+  // Abaixo de 760px o baralho vira menu de lista (ver @media no globals.css).
+  // Precisa ser largura, não só ponteiro grosso: num notebook com tela
+  // sensível ao toque o leque continua sendo o layout certo.
+  const [menuMobile, setMenuMobile] = useState(false);
   const cardRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const detailCardRef = useRef<HTMLDivElement | null>(null);
   const experienceRef = useRef<HTMLElement | null>(null);
@@ -186,7 +190,10 @@ export default function ReadingExperience() {
 
   useEffect(() => {
     const media = window.matchMedia("(hover: none), (pointer: coarse)");
-    const update = () => setCoarsePointer(media.matches || window.innerWidth < 760);
+    const update = () => {
+      setCoarsePointer(media.matches || window.innerWidth < 760);
+      setMenuMobile(window.innerWidth < 760);
+    };
     update();
     media.addEventListener("change", update);
     window.addEventListener("resize", update);
@@ -376,6 +383,14 @@ export default function ReadingExperience() {
 
   function chooseCard(index: number) {
     if (phase !== "browse") return;
+    // No menu mobile o nome da leitura já está na tela, então um toque basta
+    // (o passo de "espiar" só existe porque os versos das cartas são anônimos).
+    // Também pula o voo: uma linha de texto virando carta não faz sentido.
+    if (menuMobile) {
+      setSelectedIndex(index);
+      setPhase("detail");
+      return;
+    }
     if (coarsePointer && activeIndex !== index) {
       setActiveIndex(index);
       return;
@@ -429,9 +444,15 @@ export default function ReadingExperience() {
                   if (!coarsePointer && phase === "browse") setActiveIndex(index);
                 }}
                 onClick={() => chooseCard(index)}
-                aria-label={`${reading.name}. ${reading.short}${coarsePointer && activeIndex !== index ? ". Toque para conhecer." : ". Abrir leitura."}`}
+                aria-label={`${reading.name}. ${reading.short}. Abrir leitura.`}
               >
                 <CardArtwork reading={reading} side="back" />
+                {/* Só aparece no mobile, onde o baralho vira menu de lista
+                    (ver @media 759px). No desktop fica display:none. */}
+                <span className="igu-menu-item" aria-hidden="true">
+                  <span className="igu-menu-item__nome">{reading.name}</span>
+                  <span className="igu-menu-item__short">{reading.short}</span>
+                </span>
               </button>
             ))}
           </div>
