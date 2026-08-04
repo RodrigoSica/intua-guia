@@ -2,15 +2,14 @@
 
 import { useState } from "react";
 
-const placeholderAnswer =
-  "Essa resposta será detalhada com as informações finais da consulta e da sua disponibilidade.";
+type Faq = { question: string; answer: string };
 
-export default function FaqAccordion({ questions }: { questions: string[] }) {
+export default function FaqAccordion({ questions }: { questions: Faq[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
     <div className="faq__list">
-      {questions.map((question, index) => {
+      {questions.map(({ question, answer }, index) => {
         const isOpen = openIndex === index;
         const answerId = `faq-answer-${index}`;
 
@@ -34,7 +33,7 @@ export default function FaqAccordion({ questions }: { questions: string[] }) {
             </button>
             <div className="faq-answer" id={answerId} aria-hidden={!isOpen}>
               <div className="faq-answer__inner">
-                <p>{placeholderAnswer}</p>
+                <p>{answer}</p>
               </div>
             </div>
           </article>

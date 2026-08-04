@@ -4,9 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 
 type Testimonial = {
+  highlight: string;
   quote: string;
   name: string;
   age: string;
+  reading: string;
   initial: string;
 };
 
@@ -81,16 +83,17 @@ export default function TestimonialsCarousel({
             {visible.map((testimonial, index) => (
               <figure
                 className="testimonial"
-                key={`${testimonial.name}-${testimonial.quote}`}
+                key={`${testimonial.name}-${testimonial.age}-${testimonial.reading}`}
                 style={{ "--testimonial-index": index } as CSSProperties}
               >
                 <span className="testimonial__mark" aria-hidden="true">“</span>
+                <p className="testimonial__highlight">{testimonial.highlight}</p>
                 <blockquote>{testimonial.quote}</blockquote>
                 <figcaption>
                   <span className="avatar" aria-hidden="true">{testimonial.initial}</span>
                   <span>
-                    <strong>{testimonial.name}</strong>
-                    <small>{testimonial.age}</small>
+                    <strong>{testimonial.name}, {testimonial.age}</strong>
+                    <small>{testimonial.reading}</small>
                   </span>
                 </figcaption>
               </figure>
