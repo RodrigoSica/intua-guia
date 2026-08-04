@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 type Foto = { id: string; ordem: number; r2Key: string };
-type Momento = { id: string; ordem: number; titulo: string | null; resumo: string | null; audioKey: string | null; fotos: Foto[] };
+type Audio = { id: string; ordem: number; r2Key: string };
+type Momento = { id: string; ordem: number; titulo: string | null; resumo: string | null; audios: Audio[]; fotos: Foto[] };
 type Leitura = {
   id: string;
   token: string;
@@ -23,7 +24,9 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
 
   const [titulo, setTitulo] = useState("");
   const [resumo, setResumo] = useState("");
-  const [audio, setAudio] = useState<Blob | null>(null);
+  // Um bloco pode ter quantos áudios e fotos a Vanessa quiser — cada clique
+  // em "Gravar áudio"/"Tirar foto" acrescenta mais um à lista deste bloco.
+  const [audiosGravados, setAudiosGravados] = useState<Blob[]>([]);
   const [gravando, setGravando] = useState(false);
   const [fotosArquivos, setFotosArquivos] = useState<File[]>([]);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -35,7 +38,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     chunksRef.current = [];
     recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
     recorder.onstop = () => {
-      setAudio(new Blob(chunksRef.current, { type: "audio/webm" }));
+      setAudiosGravados((atual) => [...atual, new Blob(chunksRef.current, { type: "audio/webm" })]);
       stream.getTracks().forEach((track) => track.stop());
     };
     recorder.start();
@@ -61,20 +64,20 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leituraId]);
 
-  async function adicionarMomento(event: React.FormEvent) {
+  async function adicionarBloco(event: React.FormEvent) {
     event.preventDefault();
     setEnviando(true);
     const form = new FormData();
     form.set("titulo", titulo);
     form.set("resumo", resumo);
-    if (audio) form.set("audio", audio, "gravacao.webm");
+    audiosGravados.forEach((blob, i) => form.append("audios", blob, `gravacao-${i + 1}.webm`));
     for (const foto of fotosArquivos) form.append("fotos", foto);
 
     await fetch(`/api/admin/leituras/${leituraId}/momentos`, { method: "POST", body: form });
 
     setTitulo("");
     setResumo("");
-    setAudio(null);
+    setAudiosGravados([]);
     setFotosArquivos([]);
     await carregar();
     setEnviando(false);
@@ -115,7 +118,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
         )}
       </div>
 
-      <h2 className="admin-builder__subtitulo">Momentos ({momentos.length})</h2>
+      <h2 className="admin-builder__subtitulo">Blocos ({momentos.length})</h2>
       <ol className="admin-builder__momentos">
         {momentos.map((momento) => (
           <li key={momento.id} className="admin-momento">
@@ -124,7 +127,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
               {momento.titulo && <strong>{momento.titulo}</strong>}
               {momento.resumo && <p>{momento.resumo}</p>}
               <div className="admin-momento__midia">
-                {momento.audioKey && <span>🎙 áudio</span>}
+                {momento.audios.length > 0 && <span>🎙 {momento.audios.length} áudio(s)</span>}
                 {momento.fotos.length > 0 && <span>🖼 {momento.fotos.length} foto(s)</span>}
               </div>
             </div>
@@ -132,33 +135,43 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
         ))}
       </ol>
 
-      <form className="admin-momento-form" onSubmit={adicionarMomento}>
-        <h2 className="admin-builder__subtitulo">Adicionar momento</h2>
+      <form className="admin-momento-form" onSubmit={adicionarBloco}>
+        <h2 className="admin-builder__subtitulo">Novo bloco</h2>
+        <p className="admin-momento-form__ajuda">Um bloco é um momento da leitura: quantas cartas e áudios você quiser, juntos.</p>
         <label>
           <span>Título (opcional)</span>
           <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex: A raiz da questão" />
         </label>
         <label>
           <span>Resumo / pontos-chave</span>
-          <textarea rows={3} value={resumo} onChange={(e) => setResumo(e.target.value)} placeholder="O que esse áudio aborda" />
+          <textarea rows={3} value={resumo} onChange={(e) => setResumo(e.target.value)} placeholder="O que esse bloco aborda" />
         </label>
         <label>
-          <span>Áudio</span>
+          <span>Áudios ({audiosGravados.length})</span>
           <div className="admin-gravar">
             {!gravando ? (
               <button type="button" className="button button--outline button--small" onClick={iniciarGravacao}>
-                {audio ? "🎙 Regravar" : "🎙 Gravar áudio"}
+                🎙 Gravar áudio
               </button>
             ) : (
               <button type="button" className="button button--coral button--small admin-gravar__ativo" onClick={pararGravacao}>
                 ⏹ Parar gravação
               </button>
             )}
-            {audio && !gravando && <span className="admin-gravar__status">Áudio gravado ✓</span>}
           </div>
+          {audiosGravados.length > 0 && (
+            <ul className="admin-midia-lista">
+              {audiosGravados.map((_, i) => (
+                <li key={i}>
+                  Áudio {i + 1} ✓
+                  <button type="button" onClick={() => setAudiosGravados((a) => a.filter((_, j) => j !== i))} aria-label={`Remover áudio ${i + 1}`}>×</button>
+                </li>
+              ))}
+            </ul>
+          )}
         </label>
         <label>
-          <span>Fotos das cartas</span>
+          <span>Fotos das cartas ({fotosArquivos.length})</span>
           <div className="admin-gravar">
             <button
               type="button"
@@ -179,11 +192,20 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
                 e.target.value = "";
               }}
             />
-            {fotosArquivos.length > 0 && <span className="admin-gravar__status">{fotosArquivos.length} foto(s) ✓</span>}
           </div>
+          {fotosArquivos.length > 0 && (
+            <ul className="admin-midia-lista">
+              {fotosArquivos.map((f, i) => (
+                <li key={i}>
+                  {f.name.slice(0, 18)}
+                  <button type="button" onClick={() => setFotosArquivos((a) => a.filter((_, j) => j !== i))} aria-label={`Remover foto ${i + 1}`}>×</button>
+                </li>
+              ))}
+            </ul>
+          )}
         </label>
-        <button type="submit" className="button button--coral" disabled={enviando}>
-          {enviando ? "Salvando..." : "Adicionar momento"}
+        <button type="submit" className="button button--coral admin-momento-form__adicionar" disabled={enviando}>
+          <span aria-hidden="true">+</span> {enviando ? "Salvando..." : "Adicionar bloco"}
         </button>
       </form>
     </div>

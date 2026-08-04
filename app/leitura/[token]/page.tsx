@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
-import { fotos, leituras, momentos } from "../../../db/schema";
+import { audios, fotos, leituras, momentos } from "../../../db/schema";
 
 export default async function LeituraPage({
   params,
@@ -42,14 +42,19 @@ export default async function LeituraPage({
     .where(eq(momentos.leituraId, leitura.id))
     .orderBy(asc(momentos.ordem));
 
-  const momentosComFotos = await Promise.all(
+  const momentosCompletos = await Promise.all(
     momentosRows.map(async (momento) => {
       const fotosRows = await db
         .select()
         .from(fotos)
         .where(eq(fotos.momentoId, momento.id))
         .orderBy(asc(fotos.ordem));
-      return { ...momento, fotos: fotosRows };
+      const audiosRows = await db
+        .select()
+        .from(audios)
+        .where(eq(audios.momentoId, momento.id))
+        .orderBy(asc(audios.ordem));
+      return { ...momento, fotos: fotosRows, audios: audiosRows };
     })
   );
 
@@ -61,9 +66,9 @@ export default async function LeituraPage({
         <span className="section-mark" aria-hidden="true">✦</span>
 
         <ol className="leitura-momentos">
-          {momentosComFotos.map((momento, index) => (
+          {momentosCompletos.map((momento, index) => (
             <li key={momento.id} className="leitura-momento">
-              <span className="leitura-momento__numero">Momento {index + 1} de {momentosComFotos.length}</span>
+              <span className="leitura-momento__numero">Momento {index + 1} de {momentosCompletos.length}</span>
               {momento.titulo && <h2>{momento.titulo}</h2>}
               {momento.fotos.length > 0 && (
                 <div className="leitura-momento__fotos">
@@ -72,8 +77,12 @@ export default async function LeituraPage({
                   ))}
                 </div>
               )}
-              {momento.audioKey && (
-                <audio controls preload="none" src={`/midia/${momento.audioKey}`} />
+              {momento.audios.length > 0 && (
+                <div className="leitura-momento__audios">
+                  {momento.audios.map((audio) => (
+                    <audio key={audio.id} controls preload="none" src={`/midia/${audio.r2Key}`} />
+                  ))}
+                </div>
               )}
               {momento.resumo && (
                 <details className="leitura-momento__resumo">

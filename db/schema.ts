@@ -18,6 +18,8 @@ export const leituras = sqliteTable("leituras", {
   publicadaEm: text("publicada_em"),
 });
 
+// "momentos" no banco = "blocos" na interface (nome que a Vanessa usa: cada
+// bloco é um momento da leitura, com quantas fotos e áudios ela quiser).
 export const momentos = sqliteTable("momentos", {
   id: text("id").primaryKey(),
   leituraId: text("leitura_id")
@@ -25,9 +27,7 @@ export const momentos = sqliteTable("momentos", {
     .references(() => leituras.id, { onDelete: "cascade" }),
   ordem: integer("ordem").notNull(),
   titulo: text("titulo"),
-  resumo: text("resumo"), // pontos-chave do áudio, escritos pela Vanessa
-  audioKey: text("audio_key"), // chave no R2
-  audioDuracao: integer("audio_duracao"), // segundos
+  resumo: text("resumo"), // pontos-chave do bloco, escritos pela Vanessa
 });
 
 export const fotos = sqliteTable("fotos", {
@@ -37,4 +37,14 @@ export const fotos = sqliteTable("fotos", {
     .references(() => momentos.id, { onDelete: "cascade" }),
   ordem: integer("ordem").notNull(),
   r2Key: text("r2_key").notNull(),
+});
+
+export const audios = sqliteTable("audios", {
+  id: text("id").primaryKey(),
+  momentoId: text("momento_id")
+    .notNull()
+    .references(() => momentos.id, { onDelete: "cascade" }),
+  ordem: integer("ordem").notNull(),
+  r2Key: text("r2_key").notNull(),
+  duracao: integer("duracao"), // segundos
 });

@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 import { getDb } from "../../../../../db";
-import { fotos, leituras, momentos } from "../../../../../db/schema";
+import { audios, fotos, leituras, momentos } from "../../../../../db/schema";
 
 export async function GET(
   _request: Request,
@@ -20,16 +20,21 @@ export async function GET(
     .where(eq(momentos.leituraId, id))
     .orderBy(asc(momentos.ordem));
 
-  const momentosComFotos = await Promise.all(
+  const momentosCompletos = await Promise.all(
     momentosRows.map(async (momento) => {
       const fotosRows = await db
         .select()
         .from(fotos)
         .where(eq(fotos.momentoId, momento.id))
         .orderBy(asc(fotos.ordem));
-      return { ...momento, fotos: fotosRows };
+      const audiosRows = await db
+        .select()
+        .from(audios)
+        .where(eq(audios.momentoId, momento.id))
+        .orderBy(asc(audios.ordem));
+      return { ...momento, fotos: fotosRows, audios: audiosRows };
     })
   );
 
-  return Response.json({ leitura, momentos: momentosComFotos });
+  return Response.json({ leitura, momentos: momentosCompletos });
 }

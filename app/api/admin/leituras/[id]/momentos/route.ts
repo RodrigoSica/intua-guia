@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 import { count, eq } from "drizzle-orm";
 import { getDb } from "../../../../../../db";
-import { fotos, momentos } from "../../../../../../db/schema";
+import { audios, fotos, momentos } from "../../../../../../db/schema";
 
 interface Env {
   MIDIA: R2Bucket;
@@ -17,7 +17,7 @@ export async function POST(
   const form = await request.formData();
   const titulo = (form.get("titulo") as string | null)?.trim() || null;
   const resumo = (form.get("resumo") as string | null)?.trim() || null;
-  const audio = form.get("audio") as File | null;
+  const audiosFiles = form.getAll("audios") as File[];
   const fotosFiles = form.getAll("fotos") as File[];
 
   const db = getDb();
@@ -28,23 +28,21 @@ export async function POST(
   const ordem = total + 1;
 
   const momentoId = crypto.randomUUID();
-  let audioKey: string | null = null;
+  await db.insert(momentos).values({ id: momentoId, leituraId, ordem, titulo, resumo });
 
-  if (audio && audio.size > 0) {
-    audioKey = `l/${leituraId}/${momentoId}/audio`;
-    await MIDIA.put(audioKey, await audio.arrayBuffer(), {
-      httpMetadata: { contentType: audio.type || "audio/mpeg" },
+  const audiosInseridos = [];
+  let audioOrdem = 1;
+  for (const audio of audiosFiles) {
+    if (!audio || audio.size === 0) continue;
+    const r2Key = `l/${leituraId}/${momentoId}/audio-${audioOrdem}`;
+    await MIDIA.put(r2Key, await audio.arrayBuffer(), {
+      httpMetadata: { contentType: audio.type || "audio/webm" },
     });
+    const audioId = crypto.randomUUID();
+    await db.insert(audios).values({ id: audioId, momentoId, ordem: audioOrdem, r2Key });
+    audiosInseridos.push({ id: audioId, ordem: audioOrdem, r2Key });
+    audioOrdem += 1;
   }
-
-  await db.insert(momentos).values({
-    id: momentoId,
-    leituraId,
-    ordem,
-    titulo,
-    resumo,
-    audioKey,
-  });
 
   const fotosInseridas = [];
   let fotoOrdem = 1;
@@ -61,7 +59,7 @@ export async function POST(
   }
 
   return Response.json(
-    { momento: { id: momentoId, leituraId, ordem, titulo, resumo, audioKey, fotos: fotosInseridas } },
+    { momento: { id: momentoId, leituraId, ordem, titulo, resumo, audios: audiosInseridos, fotos: fotosInseridas } },
     { status: 201 }
   );
 }
