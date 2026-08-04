@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Foto = { id: string; ordem: number; r2Key: string };
 type Momento = { id: string; ordem: number; titulo: string | null; resumo: string | null; audioKey: string | null; fotos: Foto[] };
@@ -23,8 +23,30 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
 
   const [titulo, setTitulo] = useState("");
   const [resumo, setResumo] = useState("");
-  const [audio, setAudio] = useState<File | null>(null);
+  const [audio, setAudio] = useState<Blob | null>(null);
+  const [gravando, setGravando] = useState(false);
   const [fotosArquivos, setFotosArquivos] = useState<File[]>([]);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+
+  async function iniciarGravacao() {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const recorder = new MediaRecorder(stream);
+    chunksRef.current = [];
+    recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
+    recorder.onstop = () => {
+      setAudio(new Blob(chunksRef.current, { type: "audio/webm" }));
+      stream.getTracks().forEach((track) => track.stop());
+    };
+    recorder.start();
+    mediaRecorderRef.current = recorder;
+    setGravando(true);
+  }
+
+  function pararGravacao() {
+    mediaRecorderRef.current?.stop();
+    setGravando(false);
+  }
 
   async function carregar() {
     const res = await fetch(`/api/admin/leituras/${leituraId}`);
@@ -45,7 +67,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     const form = new FormData();
     form.set("titulo", titulo);
     form.set("resumo", resumo);
-    if (audio) form.set("audio", audio);
+    if (audio) form.set("audio", audio, "gravacao.webm");
     for (const foto of fotosArquivos) form.append("fotos", foto);
 
     await fetch(`/api/admin/leituras/${leituraId}/momentos`, { method: "POST", body: form });
@@ -122,11 +144,43 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
         </label>
         <label>
           <span>Áudio</span>
-          <input type="file" accept="audio/*" onChange={(e) => setAudio(e.target.files?.[0] ?? null)} />
+          <div className="admin-gravar">
+            {!gravando ? (
+              <button type="button" className="button button--outline button--small" onClick={iniciarGravacao}>
+                {audio ? "🎙 Regravar" : "🎙 Gravar áudio"}
+              </button>
+            ) : (
+              <button type="button" className="button button--coral button--small admin-gravar__ativo" onClick={pararGravacao}>
+                ⏹ Parar gravação
+              </button>
+            )}
+            {audio && !gravando && <span className="admin-gravar__status">Áudio gravado ✓</span>}
+          </div>
         </label>
         <label>
           <span>Fotos das cartas</span>
-          <input type="file" accept="image/*" multiple onChange={(e) => setFotosArquivos(Array.from(e.target.files ?? []))} />
+          <div className="admin-gravar">
+            <button
+              type="button"
+              className="button button--outline button--small"
+              onClick={() => document.getElementById("input-camera")?.click()}
+            >
+              📷 Tirar foto
+            </button>
+            <input
+              id="input-camera"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              hidden
+              onChange={(e) => {
+                const novaFoto = e.target.files?.[0];
+                if (novaFoto) setFotosArquivos((atual) => [...atual, novaFoto]);
+                e.target.value = "";
+              }}
+            />
+            {fotosArquivos.length > 0 && <span className="admin-gravar__status">{fotosArquivos.length} foto(s) ✓</span>}
+          </div>
         </label>
         <button type="submit" className="button button--coral" disabled={enviando}>
           {enviando ? "Salvando..." : "Adicionar momento"}
