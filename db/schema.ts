@@ -9,8 +9,10 @@ export const leituras = sqliteTable("leituras", {
   id: text("id").primaryKey(),
   token: text("token").notNull().unique(), // slug secreto da URL pública
   consulenteNome: text("consulente_nome").notNull(),
+  consulenteNascimento: text("consulente_nascimento"), // ISO date
   tipoLeitura: text("tipo_leitura").notNull(),
-  status: text("status").notNull().default("rascunho"), // rascunho | preparando | publicada
+  perguntas: text("perguntas"), // o que a pessoa quer perguntar, texto livre
+  status: text("status").notNull().default("preparando"), // preparando | publicada
   prazo: text("prazo"), // ISO date, previsão de entrega
   criadaEm: text("criada_em").notNull().default(sql`CURRENT_TIMESTAMP`),
   publicadaEm: text("publicada_em"),
