@@ -1,0 +1,35 @@
+{
+  // Identidade canônica do Worker. Este arquivo existe para que:
+  //   1) o Cloudflare Workers Builds (integração Git nativa, configurada no
+  //      painel — não há .github/workflows neste repo) encontre um wrangler
+  //      config na raiz ao conectar o repositório;
+  //   2) `wrangler deploy`/`wrangler dev` rodados manualmente na raiz tenham
+  //      uma config válida sem depender do pipeline de build;
+  //   3) o "name" fique fixado em código, e não implícito via package.json.
+  //
+  // O deploy real (via `npm run deploy` ou o build automático do Cloudflare)
+  // usa dist/server/wrangler.json — gerado a cada build por vite.config.ts
+  // através do plugin @cloudflare/vite-plugin, que injeta os bindings de
+  // D1/R2 lidos de .openai/hosting.json e aponta "assets" para dist/client.
+  // Esse arquivo AQUI precisa manter o mesmo "name" que aquele gerado —
+  // um nome divergente entre os dois é a causa mais provável do domínio
+  // customizado cair em "Error 1016 Origin DNS error".
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "intua-guia",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-05-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    // Só existe após `npm run build` (vinext build). Para `wrangler dev`/
+    // `deploy` direto a partir daqui, rode o build primeiro.
+    "directory": "./dist/client"
+  },
+  // D1/R2 ainda não estão em uso (.openai/hosting.json tem d1:null, r2:null).
+  // Quando ativar D1, adicione o binding aqui E garanta que
+  // .openai/hosting.json aponte para ele, para os dois caminhos (build
+  // automático e wrangler manual) ficarem consistentes:
+  //
+  // "d1_databases": [
+  //   { "binding": "DB", "database_name": "site-creator-d1", "database_id": "<id-real>" }
+  // ]
+}

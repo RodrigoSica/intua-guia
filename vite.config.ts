@@ -12,8 +12,14 @@ const { d1, r2 } = hostingConfig;
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 
 const localBindingConfig = {
+  // Fixado explicitamente (não inferido de package.json#name) para que o
+  // worker publicado seja sempre "intua-guia" — o mesmo nome ao qual o
+  // Custom Domain intuaguia.com.br está vinculado no painel da Cloudflare.
+  // Um nome divergente aqui é a causa mais provável do Error 1016.
+  name: "intua-guia",
   main: "./worker/index.ts",
-  compatibility_flags: ["nodejs_compat"],
+  // compatibility_flags vem do wrangler.jsonc na raiz (o plugin faz merge
+  // automático) — repeti-lo aqui só duplicava a flag na config final.
   d1_databases: d1
     ? [
         {
