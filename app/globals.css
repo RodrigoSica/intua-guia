@@ -458,27 +458,48 @@ footer { padding: 24px 0; background: var(--navy); }
 @media (max-width: 759px) {
   .igu-experience { min-height: 700px; }
   .igu-picker { width: min(100% - 38px, 560px); min-height: 700px; padding: 20px 0 22px; }
-  .igu-deck-zone { min-height: 654px; overflow: hidden; }
-  .igu-card-stage { top: 28px; height: 282px; }
-  .igu-deck-halo { top: 143px; width: 116vw; height: 168px; }
-  .igu-deck-card { --card-w: 138px; --card-h: 216px; transform: translateX(-50%) translateX(calc(var(--slot) * 60px * var(--fan-local))) translateY(calc(var(--curve-mobile) * var(--fan-local))) rotate(calc(var(--angle) * var(--fan-local))); }
-  .igu-deck-card.is-active { transform: translateX(-50%) translateX(calc(var(--slot) * 60px * var(--fan-local))) translateY(calc(var(--curve-mobile) * var(--fan-local) - 18px)) rotate(calc(var(--angle) * var(--fan-local))) scale(1.04); }
-  .igu-reading-peek { top: 436px; width: calc(100% - 44px); height: 184px; padding: 22px 16px 14px; }
-  .igu-reading-peek-icon { top: -74px; height: 58px; }
+  /* Tela vertical pede disposição vertical: em vez do leque horizontal (que
+     precisaria de 637px numa tela de 375px), as cartas descem em cascata
+     diagonal. Cada carta expõe uma faixa de 58px de altura pela largura
+     inteira — alvo de toque muito maior que a fatia de 28px que um leque
+     comprimido daria. O leque horizontal do desktop fica intacto. */
+  .igu-deck-zone { display: flex; flex-direction: column; min-height: 0; overflow: visible; }
+  .igu-reading-peek { order: 1; position: static; width: 100%; height: auto; min-height: 150px; margin-bottom: 18px; padding: 22px 16px 14px; transform: none; }
+  .igu-reading-peek.is-visible { transform: none; }
+  .igu-reading-peek-icon { position: static; height: 46px; margin: 0 auto 8px; }
   .igu-reading-peek h3 { font-size: 27px; }
   .igu-reading-peek > span { font-size: 14px; }
+  .igu-card-stage { order: 2; position: relative; top: auto; right: auto; left: auto; height: 632px; }
+  .igu-deck-halo { top: 40%; width: 90vw; height: 380px; }
+  /* --slot vai de -3 a 3; 174px = 3 x 58 mantém a pilha centrada quando
+     --fan-local é 0 (cartas empilhadas antes da rolagem abrir a cascata). */
+  .igu-deck-card {
+    --card-w: 168px; --card-h: 263px;
+    top: calc(174px + var(--slot) * 58px * var(--fan-local));
+    bottom: auto;
+    z-index: calc(var(--slot) + 4);
+    transform-origin: 50% 50%;
+    transform: translateX(-50%) translateX(calc(var(--slot) * 13px * var(--fan-local))) rotate(calc(var(--slot) * 2.2deg * var(--fan-local)));
+  }
+  .igu-deck-card.is-active {
+    z-index: 16;
+    transform: translateX(-50%) translateX(calc(var(--slot) * 13px * var(--fan-local))) rotate(calc(var(--slot) * 2.2deg * var(--fan-local))) scale(1.06);
+  }
+  .igu-deck-card::after { inset: 8px 12px 0; transform: translateY(10px); }
   .igu-hint { margin-top: -6px; font-size: 11px; line-height: 1.45; }
   .igu-whisper { bottom: 4vh; width: 100%; justify-content: center; }
-  .igu-detail { min-height: 880px; padding: 27px 22px 35px; }
-  .igu-phase-detail, .igu-phase-closing { min-height: 880px; }
+  /* min-height precisa cobrir o conteúdo real: com uma coluna só, a cena 2
+     mede ~1090px. Em 880px o CTA e o "voltar" vazavam para fora da seção. */
+  .igu-detail { min-height: 1120px; padding: 24px 22px 40px; }
+  .igu-phase-detail, .igu-phase-closing { min-height: 1120px; }
   .igu-detail-layout { min-height: auto; grid-template-columns: 1fr; gap: 2px; padding-top: 5px; }
-  .igu-detail-card-column { width: 100%; min-height: 310px; align-items: flex-start; padding-left: 12px; }
-  .igu-detail-card { width: 186px; height: 291px; }
+  .igu-detail-card-column { width: 100%; min-height: 296px; align-items: flex-start; padding-left: 12px; }
+  .igu-detail-card { width: 178px; height: 278px; }
   .igu-detail-card-column > p { margin: 9px 0 0 38px; }
   .igu-detail-glow { top: 48%; left: 96px; width: 280px; height: 280px; }
-  .igu-detail-copy { padding: 18px 0 0; }
-  .igu-detail-copy h2 { font-size: 45px; }
-  .igu-description { margin: 15px 0 22px; font-size: 18px; line-height: 1.5; }
+  .igu-detail-copy { padding: 16px 0 0; }
+  .igu-detail-copy h2 { font-size: 40px; }
+  .igu-description { margin: 14px 0 20px; font-size: 17px; line-height: 1.5; }
   .igu-highlight-grid { grid-template-columns: 1fr; }
   .igu-highlight { min-height: 72px; padding: 13px 14px; }
   .igu-points { margin-top: 22px; }

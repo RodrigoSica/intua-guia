@@ -146,6 +146,12 @@ type Flight = FlightSource & {
   toScale: number;
 };
 
+/** Rotação atual do elemento, em graus, extraída da matriz de transform. */
+function lerRotacao(el: HTMLElement) {
+  const { a, b } = new DOMMatrixReadOnly(getComputedStyle(el).transform);
+  return (Math.atan2(b, a) * 180) / Math.PI;
+}
+
 function CardArtwork({ reading, side }: { reading: Reading; side: "front" | "back" }) {
   const src = side === "back" ? "/reading-cards/card-back.webp" : reading.artwork;
   return (
@@ -358,8 +364,11 @@ export default function ReadingExperience() {
       fromY: rect.top + rect.height / 2 - height / 2,
       fromW: width,
       fromH: height,
-      fromRotation: (index - 3) * 5.4,
-      fromScale: window.innerWidth < 760 ? 1.04 : 1.035,
+      // Lê a rotação renderizada em vez de assumir a do leque desktop: no
+      // mobile as cartas usam a cascata vertical, com ângulo diferente, e um
+      // valor fixo faria a carta saltar no início do voo.
+      fromRotation: lerRotacao(card),
+      fromScale: window.innerWidth < 760 ? 1.06 : 1.035,
     };
     setSelectedIndex(index);
     setPhase("measure");
