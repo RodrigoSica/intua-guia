@@ -9,6 +9,7 @@ type Reading = {
   short: string;
   description: string;
   artwork: string;
+  icon: string;
   highlights: { icon: string; label: string; text: string }[];
   points: string[];
 };
@@ -20,6 +21,7 @@ const readings: Reading[] = [
     short: "Uma leitura para reconhecer emoções, padrões e mensagens internas.",
     description: "Um convite para se observar com gentileza. A leitura ilumina camadas que pedem escuta e abre espaço para uma relação mais intuitiva consigo.",
     artwork: "/reading-cards/se-desvendando.webp",
+    icon: "/reading-icons/se-desvendando.svg",
     highlights: [
       { icon: "☾", label: "Foco", text: "Mundo interno" },
       { icon: "◇", label: "Olhar", text: "Padrões emocionais" },
@@ -33,6 +35,7 @@ const readings: Reading[] = [
     short: "Compreenda vínculos, movimentos emocionais e possibilidades no amor.",
     description: "Um olhar profundo para o campo afetivo. A leitura organiza sentimentos e ajuda você a reconhecer escolhas mais coerentes com o amor que deseja viver.",
     artwork: "/reading-cards/circulo-de-afetos.webp",
+    icon: "/reading-icons/circulo-de-afetos.svg",
     highlights: [
       { icon: "♡", label: "Foco", text: "Vida afetiva" },
       { icon: "☾", label: "Olhar", text: "Emoções e vínculos" },
@@ -46,6 +49,7 @@ const readings: Reading[] = [
     short: "Ilumine escolhas, desafios e os próximos caminhos do seu ciclo.",
     description: "Para momentos de dúvida ou reposicionamento. O tarot ajuda a enxergar tensões, oportunidades e direções possíveis para seguir com mais consciência.",
     artwork: "/reading-cards/caminhos-e-desafios.webp",
+    icon: "/reading-icons/caminhos-e-desafios.svg",
     highlights: [
       { icon: "↟", label: "Foco", text: "Escolhas e travessias" },
       { icon: "◇", label: "Olhar", text: "Desafios do ciclo" },
@@ -59,6 +63,7 @@ const readings: Reading[] = [
     short: "Observe o que pede harmonização para que sua energia volte a circular.",
     description: "Uma leitura sensível para perceber excessos, faltas e pontos de atenção no seu campo energético, fortalecendo uma presença mais alinhada.",
     artwork: "/reading-cards/equilibrio-energetico.webp",
+    icon: "/reading-icons/equilibrio-energetico.svg",
     highlights: [
       { icon: "◌", label: "Foco", text: "Campo energético" },
       { icon: "✧", label: "Olhar", text: "Centros de força" },
@@ -72,6 +77,7 @@ const readings: Reading[] = [
     short: "Traga duas questões e encontre clareza para o momento que você vive.",
     description: "Uma leitura objetiva para questões que pedem direção. Cada pergunta é observada com presença, contexto e uma mensagem prática do tarot.",
     artwork: "/reading-cards/duas-perguntas.webp",
+    icon: "/reading-icons/duas-perguntas.svg",
     highlights: [
       { icon: "?", label: "Foco", text: "Duas questões" },
       { icon: "☾", label: "Olhar", text: "Contexto presente" },
@@ -85,6 +91,7 @@ const readings: Reading[] = [
     short: "Um panorama profundo do seu ciclo, das raízes às possibilidades futuras.",
     description: "Uma leitura ampla para quem deseja se escutar por inteiro. A Mandala conecta diferentes áreas da vida e revela como passado, presente e potência se encontram.",
     artwork: "/reading-cards/mandala-astrologica.webp",
+    icon: "/reading-icons/mandala-astrologica.svg",
     highlights: [
       { icon: "☼", label: "Foco", text: "Ciclo completo" },
       { icon: "◎", label: "Olhar", text: "Áreas da vida" },
@@ -98,6 +105,7 @@ const readings: Reading[] = [
     short: "Uma leitura direta para iluminar o momento presente e seus próximos caminhos.",
     description: "A linguagem do baralho cigano organiza sinais, movimentos e possibilidades com objetividade e delicadeza para o seu momento atual.",
     artwork: "/reading-cards/tiragem-cigana.webp",
+    icon: "/reading-icons/tiragem-cigana.svg",
     highlights: [
       { icon: "✦", label: "Foco", text: "Momento presente" },
       { icon: "⌁", label: "Olhar", text: "Sinais e movimentos" },
@@ -419,6 +427,7 @@ export default function ReadingExperience() {
             ))}
           </div>
           <div className={`igu-reading-peek ${active ? "is-visible" : ""}`} aria-live="polite">
+            {active && <img className="igu-reading-peek-icon" src={active.icon} alt="" aria-hidden="true" />}
             <p>{active?.eyebrow ?? "Tipos de Leitura"}</p>
             <h3>{active?.name ?? "Uma carta espera por você"}</h3>
             {active && <span>{active.short}</span>}
