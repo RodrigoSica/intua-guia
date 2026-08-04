@@ -450,8 +450,11 @@ export default function ReadingExperience() {
                 {/* Só aparece no mobile, onde o baralho vira menu de lista
                     (ver @media 759px). No desktop fica display:none. */}
                 <span className="igu-menu-item" aria-hidden="true">
-                  <span className="igu-menu-item__nome">{reading.name}</span>
-                  <span className="igu-menu-item__short">{reading.short}</span>
+                  <img className="igu-menu-item__icone" src={reading.icon} alt="" />
+                  <span className="igu-menu-item__texto">
+                    <span className="igu-menu-item__nome">{reading.name}</span>
+                    <span className="igu-menu-item__short">{reading.short}</span>
+                  </span>
                 </span>
               </button>
             ))}

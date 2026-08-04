@@ -498,7 +498,9 @@ footer { padding: 24px 0; background: var(--navy); }
   /* A arte da carta some só aqui no baralho — o card do detalhe e o de voo
      usam .igu-card-face também e precisam continuar visíveis. */
   .igu-deck-card .igu-card-face { display: none; }
-  .igu-menu-item { display: flex; flex-direction: column; gap: 5px; width: 100%; }
+  .igu-menu-item { display: flex; flex-direction: row; align-items: center; gap: 15px; width: 100%; }
+  .igu-menu-item__icone { flex: 0 0 46px; width: 46px; height: 46px; object-fit: contain; }
+  .igu-menu-item__texto { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
   .igu-menu-item__nome { color: var(--igu-ink); font-family: var(--serif); font-size: 21px; font-weight: 600; line-height: 1.15; }
   .igu-menu-item__short { color: rgba(10,48,64,.62); font-size: 13px; font-weight: 300; line-height: 1.45; }
   .igu-whisper { bottom: 4vh; width: 100%; justify-content: center; }
