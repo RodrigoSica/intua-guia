@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
-import { leituras } from "../../../db/schema";
+import { fotos, leituras, momentos } from "../../../db/schema";
 
 export default async function LeituraPage({
   params,
@@ -23,7 +23,7 @@ export default async function LeituraPage({
     );
   }
 
-  if (leitura.status === "preparando") {
+  if (leitura.status !== "publicada") {
     return (
       <main className="leitura-sala leitura-sala--estado">
         <div className="container">
@@ -36,15 +36,54 @@ export default async function LeituraPage({
     );
   }
 
-  // status "publicada" — conteúdo completo (momentos, áudios, fotos) chega
-  // no Cenário 2. Placeholder por enquanto para o link nunca quebrar.
+  const momentosRows = await db
+    .select()
+    .from(momentos)
+    .where(eq(momentos.leituraId, leitura.id))
+    .orderBy(asc(momentos.ordem));
+
+  const momentosComFotos = await Promise.all(
+    momentosRows.map(async (momento) => {
+      const fotosRows = await db
+        .select()
+        .from(fotos)
+        .where(eq(fotos.momentoId, momento.id))
+        .orderBy(asc(fotos.ordem));
+      return { ...momento, fotos: fotosRows };
+    })
+  );
+
   return (
-    <main className="leitura-sala leitura-sala--estado">
-      <div className="container">
+    <main className="leitura-sala leitura-sala--pronta">
+      <div className="container leitura-sala__conteudo">
         <p className="eyebrow">{leitura.tipoLeitura}</p>
         <h1>Olá, {leitura.consulenteNome.split(" ")[0]}</h1>
         <span className="section-mark" aria-hidden="true">✦</span>
-        <p>Sua leitura está pronta! Estamos finalizando a exibição completa dela nesta página.</p>
+
+        <ol className="leitura-momentos">
+          {momentosComFotos.map((momento, index) => (
+            <li key={momento.id} className="leitura-momento">
+              <span className="leitura-momento__numero">Momento {index + 1} de {momentosComFotos.length}</span>
+              {momento.titulo && <h2>{momento.titulo}</h2>}
+              {momento.fotos.length > 0 && (
+                <div className="leitura-momento__fotos">
+                  {momento.fotos.map((foto) => (
+                    <img key={foto.id} src={`/midia/${foto.r2Key}`} alt="Cartas reveladas na leitura" loading="lazy" />
+                  ))}
+                </div>
+              )}
+              {momento.audioKey && (
+                <audio controls preload="none" src={`/midia/${momento.audioKey}`} />
+              )}
+              {momento.resumo && (
+                <details className="leitura-momento__resumo">
+                  <summary>Pontos-chave deste momento</summary>
+                  <p>{momento.resumo}</p>
+                </details>
+              )}
+            </li>
+          ))}
+        </ol>
       </div>
     </main>
   );

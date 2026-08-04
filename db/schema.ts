@@ -25,6 +25,7 @@ export const momentos = sqliteTable("momentos", {
     .references(() => leituras.id, { onDelete: "cascade" }),
   ordem: integer("ordem").notNull(),
   titulo: text("titulo"),
+  resumo: text("resumo"), // pontos-chave do áudio, escritos pela Vanessa
   audioKey: text("audio_key"), // chave no R2
   audioDuracao: integer("audio_duracao"), // segundos
 });
