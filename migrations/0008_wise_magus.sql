@@ -1,0 +1,1 @@
+ALTER TABLE `momentos` ADD `pontos_chave` text;

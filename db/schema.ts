@@ -27,7 +27,8 @@ export const momentos = sqliteTable("momentos", {
     .references(() => leituras.id, { onDelete: "cascade" }),
   ordem: integer("ordem").notNull(),
   titulo: text("titulo"),
-  resumo: text("resumo"), // pontos-chave do bloco, escritos pela Vanessa
+  resumo: text("resumo"), // isca curta (2-3 frases) — gerada por IA a partir do áudio, editável
+  pontosChave: text("pontos_chave"), // lista curta, um item por linha — gerada por IA a partir do áudio, editável
 });
 
 export const fotos = sqliteTable("fotos", {

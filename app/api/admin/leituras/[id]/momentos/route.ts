@@ -17,6 +17,7 @@ export async function POST(
   const form = await request.formData();
   const titulo = (form.get("titulo") as string | null)?.trim() || null;
   const resumo = (form.get("resumo") as string | null)?.trim() || null;
+  const pontosChave = (form.get("pontosChave") as string | null)?.trim() || null;
   const audiosFiles = form.getAll("audios") as File[];
   const fotosFiles = form.getAll("fotos") as File[];
 
@@ -28,7 +29,7 @@ export async function POST(
   const ordem = total + 1;
 
   const momentoId = crypto.randomUUID();
-  await db.insert(momentos).values({ id: momentoId, leituraId, ordem, titulo, resumo });
+  await db.insert(momentos).values({ id: momentoId, leituraId, ordem, titulo, resumo, pontosChave });
 
   const audiosInseridos = [];
   let audioOrdem = 1;
@@ -59,7 +60,7 @@ export async function POST(
   }
 
   return Response.json(
-    { momento: { id: momentoId, leituraId, ordem, titulo, resumo, audios: audiosInseridos, fotos: fotosInseridas } },
+    { momento: { id: momentoId, leituraId, ordem, titulo, resumo, pontosChave, audios: audiosInseridos, fotos: fotosInseridas } },
     { status: 201 }
   );
 }

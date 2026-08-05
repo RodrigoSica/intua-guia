@@ -4,7 +4,15 @@ import { useEffect, useRef, useState } from "react";
 
 type Foto = { id: string; ordem: number; r2Key: string };
 type Audio = { id: string; ordem: number; r2Key: string };
-type Momento = { id: string; ordem: number; titulo: string | null; resumo: string | null; audios: Audio[]; fotos: Foto[] };
+type Momento = {
+  id: string;
+  ordem: number;
+  titulo: string | null;
+  resumo: string | null;
+  pontosChave: string | null;
+  audios: Audio[];
+  fotos: Foto[];
+};
 type Leitura = {
   id: string;
   token: string;
@@ -25,6 +33,9 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
 
   const [titulo, setTitulo] = useState("");
   const [resumo, setResumo] = useState("");
+  const [pontosChave, setPontosChave] = useState("");
+  const [gerando, setGerando] = useState(false);
+  const [erroGeracao, setErroGeracao] = useState("");
   // Um bloco pode ter quantos áudios e fotos a Vanessa quiser — cada clique
   // em "Gravar áudio"/"Tirar foto" acrescenta mais um à lista deste bloco.
   const [audiosGravados, setAudiosGravados] = useState<Blob[]>([]);
@@ -89,8 +100,38 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
 
   async function pararGravacao() {
     const blob = await pararGravacaoEObterAudio();
-    if (blob) setAudiosGravados((atual) => [...atual, blob]);
     setGravando(false);
+    if (!blob) return;
+    const atualizados = [...audiosGravados, blob];
+    setAudiosGravados(atualizados);
+    await gerarConteudo(atualizados);
+  }
+
+  // Título, resumo e pontos-chave nascem da IA a partir do que foi gravado —
+  // a Vanessa só revisa e ajusta antes de salvar o bloco. "Gerar novamente"
+  // chama esta mesma função por baixo, usando os áudios que já estão no bloco.
+  async function gerarConteudo(audiosParaGerar: Blob[]) {
+    if (audiosParaGerar.length === 0) return;
+    setGerando(true);
+    setErroGeracao("");
+    try {
+      const form = new FormData();
+      audiosParaGerar.forEach((blob, i) => form.append("audios", blob, `gravacao-${i + 1}.webm`));
+      const res = await fetch(`/api/admin/leituras/${leituraId}/momentos/gerar`, { method: "POST", body: form });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        setErroGeracao(data?.error || `Não foi possível gerar o conteúdo (erro ${res.status}). Pode preencher na mão.`);
+        return;
+      }
+      const data = await res.json();
+      setTitulo(data.conteudo.titulo || "");
+      setResumo(data.conteudo.resumo || "");
+      setPontosChave(data.conteudo.pontosChave || "");
+    } catch {
+      setErroGeracao("Não foi possível gerar o conteúdo. Confira sua conexão ou preencha na mão.");
+    } finally {
+      setGerando(false);
+    }
   }
 
   async function carregar() {
@@ -122,6 +163,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     const form = new FormData();
     form.set("titulo", titulo);
     form.set("resumo", resumo);
+    form.set("pontosChave", pontosChave);
     audiosParaEnviar.forEach((blob, i) => form.append("audios", blob, `gravacao-${i + 1}.webm`));
     for (const foto of fotosArquivos) form.append("fotos", foto);
 
@@ -142,6 +184,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
       setErroEnvio("");
       setTitulo("");
       setResumo("");
+      setPontosChave("");
       setAudiosGravados([]);
       setFotosArquivos([]);
       await carregar();
@@ -211,6 +254,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
             <div>
               {momento.titulo && <strong>{momento.titulo}</strong>}
               {momento.resumo && <p>{momento.resumo}</p>}
+              {momento.pontosChave && <p className="admin-momento__pontos">{momento.pontosChave}</p>}
               <div className="admin-momento__midia">
                 {momento.audios.length > 0 && <span>🎙 {momento.audios.length} áudio(s)</span>}
                 {momento.fotos.length > 0 && <span>🖼 {momento.fotos.length} foto(s)</span>}
@@ -223,14 +267,6 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
       <form className="admin-momento-form" onSubmit={adicionarBloco}>
         <h2 className="admin-builder__subtitulo">Novo bloco</h2>
         <p className="admin-momento-form__ajuda">Um bloco é um momento da leitura: quantas cartas e áudios você quiser, juntos.</p>
-        <label>
-          <span>Título (opcional)</span>
-          <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex: A raiz da questão" />
-        </label>
-        <label>
-          <span>Resumo / pontos-chave</span>
-          <textarea rows={3} value={resumo} onChange={(e) => setResumo(e.target.value)} placeholder="O que esse bloco aborda" />
-        </label>
         <label>
           <span>Áudios ({audiosGravados.length})</span>
           <div className="admin-gravar">
@@ -255,6 +291,33 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
             </ul>
           )}
         </label>
+
+        <p className="admin-momento-form__ajuda">
+          Título, resumo e pontos-chave são gerados a partir do áudio gravado acima.
+          Revise e ajuste à vontade antes de salvar.
+        </p>
+        {erroGeracao && <p className="admin-momento-form__erro">⚠ {erroGeracao}</p>}
+        <label>
+          <span>Título {gerando && "— gerando..."}</span>
+          <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Gerado após gravar o áudio" disabled={gerando} />
+        </label>
+        <label>
+          <span>Resumo {gerando && "— gerando..."}</span>
+          <textarea rows={2} value={resumo} onChange={(e) => setResumo(e.target.value)} placeholder="Gerado após gravar o áudio" disabled={gerando} />
+        </label>
+        <label>
+          <span>Pontos-chave {gerando && "— gerando..."}</span>
+          <textarea rows={3} value={pontosChave} onChange={(e) => setPontosChave(e.target.value)} placeholder="Gerado após gravar o áudio" disabled={gerando} />
+        </label>
+        <button
+          type="button"
+          className="button button--outline button--small"
+          onClick={() => gerarConteudo(audiosGravados)}
+          disabled={gerando || audiosGravados.length === 0}
+        >
+          {gerando ? "Gerando..." : "🪄 Gerar novamente"}
+        </button>
+
         <label>
           <span>Fotos das cartas ({fotosArquivos.length})</span>
           <div className="admin-gravar">

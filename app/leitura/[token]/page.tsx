@@ -70,6 +70,7 @@ export default async function LeituraPage({
             <li key={momento.id} className="leitura-momento">
               <span className="leitura-momento__numero">Momento {index + 1} de {momentosCompletos.length}</span>
               {momento.titulo && <h2>{momento.titulo}</h2>}
+              {momento.resumo && <p className="leitura-momento__isca">{momento.resumo}</p>}
               {momento.fotos.length > 0 && (
                 <div className="leitura-momento__fotos">
                   {momento.fotos.map((foto) => (
@@ -84,10 +85,10 @@ export default async function LeituraPage({
                   ))}
                 </div>
               )}
-              {momento.resumo && (
+              {momento.pontosChave && (
                 <details className="leitura-momento__resumo">
                   <summary>Pontos-chave deste momento</summary>
-                  <p>{momento.resumo}</p>
+                  <p>{momento.pontosChave}</p>
                 </details>
               )}
             </li>
