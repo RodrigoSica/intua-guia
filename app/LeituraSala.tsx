@@ -52,9 +52,9 @@ export default function LeituraSala({
   return (
     <>
       <p className="leitura-sala__boasvindas">
-        Obrigada por confiar a mim esse momento tão seu. Preparei cada carta com cuidado — que esta
+        Obrigada por confiar a mim esse momento tão seu. Preparei cada carta com cuidado, e que esta
         leitura te acompanhe com verdade e traga mais clareza para os passos que ainda estão por vir.
-        <span>— Van</span>
+        <span>Com carinho, Van</span>
       </p>
 
       <ol className="leitura-momentos">
