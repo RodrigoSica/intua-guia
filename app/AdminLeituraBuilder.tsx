@@ -31,6 +31,16 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
   const [erroEnvio, setErroEnvio] = useState("");
   const [publicando, setPublicando] = useState(false);
 
+  // editandoId === null -> formulário em modo "novo bloco".
+  // editandoId === id de um momento -> formulário reaproveitado para editá-lo:
+  // mesmos campos, mas título/resumo/pontos-chave vêm pré-preenchidos e as
+  // fotos/áudios já salvos aparecem para revisão (com opção de remover).
+  const [editandoId, setEditandoId] = useState<string | null>(null);
+  const [fotosExistentes, setFotosExistentes] = useState<Foto[]>([]);
+  const [audiosExistentes, setAudiosExistentes] = useState<Audio[]>([]);
+  const [fotosRemovidasIds, setFotosRemovidasIds] = useState<string[]>([]);
+  const [audiosRemovidosIds, setAudiosRemovidosIds] = useState<string[]>([]);
+
   const [titulo, setTitulo] = useState("");
   const [resumo, setResumo] = useState("");
   const [pontosChave, setPontosChave] = useState("");
@@ -110,6 +120,8 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
   // Título, resumo e pontos-chave nascem da IA a partir do que foi gravado —
   // a Vanessa só revisa e ajusta antes de salvar o bloco. "Gerar novamente"
   // chama esta mesma função por baixo, usando os áudios que já estão no bloco.
+  // Em modo edição, só considera áudio gravado NESTA sessão (o já salvo
+  // continua no bloco do jeito que está, a menos que ela regrave).
   async function gerarConteudo(audiosParaGerar: Blob[]) {
     if (audiosParaGerar.length === 0) return;
     setGerando(true);
@@ -147,6 +159,53 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leituraId]);
 
+  function limparFormulario() {
+    setEditandoId(null);
+    setTitulo("");
+    setResumo("");
+    setPontosChave("");
+    setFotosExistentes([]);
+    setAudiosExistentes([]);
+    setFotosRemovidasIds([]);
+    setAudiosRemovidosIds([]);
+    setAudiosGravados([]);
+    setFotosArquivos([]);
+    setErroGeracao("");
+  }
+
+  function iniciarEdicao(momento: Momento) {
+    setEditandoId(momento.id);
+    setTitulo(momento.titulo ?? "");
+    setResumo(momento.resumo ?? "");
+    setPontosChave(momento.pontosChave ?? "");
+    setFotosExistentes(momento.fotos);
+    setAudiosExistentes(momento.audios);
+    setFotosRemovidasIds([]);
+    setAudiosRemovidosIds([]);
+    setAudiosGravados([]);
+    setFotosArquivos([]);
+    setErroEnvio("");
+    setErroGeracao("");
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }
+
+  async function apagarBloco(momento: Momento) {
+    if (
+      !window.confirm(
+        `Apagar o bloco "${momento.titulo || "sem título"}"?\n\nOs áudios e fotos dele somem junto. Não dá pra desfazer.`
+      )
+    ) {
+      return;
+    }
+    const res = await fetch(`/api/admin/leituras/${leituraId}/momentos/${momento.id}`, { method: "DELETE" });
+    if (!res.ok) {
+      setErroEnvio("Não foi possível apagar o bloco. Tente novamente.");
+      return;
+    }
+    if (editandoId === momento.id) limparFormulario();
+    await carregar();
+  }
+
   async function adicionarBloco(event: React.FormEvent) {
     event.preventDefault();
     setEnviando(true);
@@ -182,11 +241,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
 
     if (ok) {
       setErroEnvio("");
-      setTitulo("");
-      setResumo("");
-      setPontosChave("");
-      setAudiosGravados([]);
-      setFotosArquivos([]);
+      limparFormulario();
       await carregar();
     } else {
       // Falhou: título, resumo e fotos já continuam no estado (nunca foram
@@ -194,6 +249,49 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
       // andamento tenha sido incorporada a audiosParaEnviar acima. Assim o
       // próximo clique em "Adicionar bloco" simplesmente tenta de novo, sem
       // o usuário ter que preencher nada outra vez.
+      setAudiosGravados(audiosParaEnviar);
+    }
+    setEnviando(false);
+  }
+
+  async function salvarEdicao(event: React.FormEvent) {
+    event.preventDefault();
+    if (!editandoId) return;
+    setEnviando(true);
+
+    let audiosParaEnviar = audiosGravados;
+    if (gravando) {
+      const blob = await pararGravacaoEObterAudio();
+      setGravando(false);
+      if (blob) audiosParaEnviar = [...audiosGravados, blob];
+    }
+
+    const form = new FormData();
+    form.set("titulo", titulo);
+    form.set("resumo", resumo);
+    form.set("pontosChave", pontosChave);
+    fotosRemovidasIds.forEach((id) => form.append("removerFotos", id));
+    audiosRemovidosIds.forEach((id) => form.append("removerAudios", id));
+    audiosParaEnviar.forEach((blob, i) => form.append("audios", blob, `gravacao-${i + 1}.webm`));
+    for (const foto of fotosArquivos) form.append("fotos", foto);
+
+    let ok = false;
+    try {
+      const res = await fetch(`/api/admin/leituras/${leituraId}/momentos/${editandoId}`, {
+        method: "PATCH",
+        body: form,
+      });
+      ok = res.ok;
+      if (!ok) setErroEnvio(`Não foi possível salvar (erro ${res.status}). Tente novamente — nada foi perdido.`);
+    } catch {
+      setErroEnvio("Não foi possível salvar. Confira sua conexão e tente novamente — nada foi perdido.");
+    }
+
+    if (ok) {
+      setErroEnvio("");
+      limparFormulario();
+      await carregar();
+    } else {
       setAudiosGravados(audiosParaEnviar);
     }
     setEnviando(false);
@@ -249,7 +347,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
       <h2 className="admin-builder__subtitulo">Blocos ({momentos.length})</h2>
       <ol className="admin-builder__momentos">
         {momentos.map((momento) => (
-          <li key={momento.id} className="admin-momento">
+          <li key={momento.id} className={`admin-momento ${editandoId === momento.id ? "admin-momento--editando" : ""}`}>
             <span className="admin-momento__ordem">{String(momento.ordem).padStart(2, "0")}</span>
             <div>
               {momento.titulo && <strong>{momento.titulo}</strong>}
@@ -260,15 +358,29 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
                 {momento.fotos.length > 0 && <span>🖼 {momento.fotos.length} foto(s)</span>}
               </div>
             </div>
+            <div className="admin-momento__acoes">
+              <button type="button" className="admin-momento__editar" onClick={() => iniciarEdicao(momento)}>
+                ✎ Editar
+              </button>
+              <button type="button" className="admin-momento__apagar-bloco" onClick={() => apagarBloco(momento)}>
+                🗑
+              </button>
+            </div>
           </li>
         ))}
       </ol>
 
-      <form className="admin-momento-form" onSubmit={adicionarBloco}>
-        <h2 className="admin-builder__subtitulo">Novo bloco</h2>
-        <p className="admin-momento-form__ajuda">Um bloco é um momento da leitura: quantas cartas e áudios você quiser, juntos.</p>
+      <form className="admin-momento-form" onSubmit={editandoId ? salvarEdicao : adicionarBloco}>
+        <h2 className="admin-builder__subtitulo">
+          {editandoId ? `Editando bloco ${String(momentos.find((m) => m.id === editandoId)?.ordem ?? "").padStart(2, "0")}` : "Novo bloco"}
+        </h2>
+        <p className="admin-momento-form__ajuda">
+          {editandoId
+            ? "Ajuste o texto, remova o que não quiser ou grave/tire mais mídia para este bloco."
+            : "Um bloco é um momento da leitura: quantas cartas e áudios você quiser, juntos."}
+        </p>
         <label>
-          <span>Áudios ({audiosGravados.length})</span>
+          <span>Áudios ({audiosExistentes.length + audiosGravados.length})</span>
           <div className="admin-gravar">
             {!gravando ? (
               <button type="button" className="button button--outline button--small" onClick={iniciarGravacao}>
@@ -280,11 +392,30 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
               </button>
             )}
           </div>
+          {audiosExistentes.length > 0 && (
+            <ul className="admin-midia-lista admin-midia-lista--existente">
+              {audiosExistentes.map((audio) => (
+                <li key={audio.id}>
+                  <audio controls preload="none" src={`/midia/${audio.r2Key}`} />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAudiosExistentes((a) => a.filter((x) => x.id !== audio.id));
+                      setAudiosRemovidosIds((ids) => [...ids, audio.id]);
+                    }}
+                    aria-label="Remover áudio salvo"
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
           {audiosGravados.length > 0 && (
             <ul className="admin-midia-lista">
               {audiosGravados.map((_, i) => (
                 <li key={i}>
-                  Áudio {i + 1} ✓
+                  Áudio novo {i + 1} ✓
                   <button type="button" onClick={() => setAudiosGravados((a) => a.filter((_, j) => j !== i))} aria-label={`Remover áudio ${i + 1}`}>×</button>
                 </li>
               ))}
@@ -319,7 +450,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
         </button>
 
         <label>
-          <span>Fotos das cartas ({fotosArquivos.length})</span>
+          <span>Fotos das cartas ({fotosExistentes.length + fotosArquivos.length})</span>
           <div className="admin-gravar">
             <button
               type="button"
@@ -343,6 +474,25 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
               }}
             />
           </div>
+          {fotosExistentes.length > 0 && (
+            <ul className="admin-midia-lista admin-midia-lista--existente admin-midia-lista--fotos">
+              {fotosExistentes.map((foto) => (
+                <li key={foto.id}>
+                  <img src={`/midia/${foto.r2Key}`} alt="Carta já salva neste bloco" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFotosExistentes((f) => f.filter((x) => x.id !== foto.id));
+                      setFotosRemovidasIds((ids) => [...ids, foto.id]);
+                    }}
+                    aria-label="Remover foto salva"
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
           {fotosArquivos.length > 0 && (
             <ul className="admin-midia-lista">
               {fotosArquivos.map((f, i) => (
@@ -354,9 +504,20 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
             </ul>
           )}
         </label>
-        <button type="submit" className="button button--coral admin-momento-form__adicionar" disabled={enviando}>
-          <span aria-hidden="true">+</span> {enviando ? "Salvando..." : "Adicionar bloco"}
-        </button>
+        <div className="admin-momento-form__acoes-finais">
+          <button type="submit" className="button button--coral admin-momento-form__adicionar" disabled={enviando}>
+            {editandoId ? (enviando ? "Salvando..." : "Salvar alterações") : (
+              <>
+                <span aria-hidden="true">+</span> {enviando ? "Salvando..." : "Adicionar bloco"}
+              </>
+            )}
+          </button>
+          {editandoId && (
+            <button type="button" className="button button--outline button--small" onClick={limparFormulario} disabled={enviando}>
+              Cancelar edição
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );
