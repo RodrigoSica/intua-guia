@@ -49,12 +49,24 @@ function paraLinhas(valor: unknown): string {
   return String(valor ?? "").trim();
 }
 
+// whisper-large-v3-turbo espera o áudio em base64 (diferente do @cf/openai/whisper
+// clássico, que aceita array de bytes) — btoa em chunks evita estourar a call
+// stack do spread operator em arquivos de alguns MB.
+function paraBase64(bytes: Uint8Array): string {
+  let binario = "";
+  const tamanhoChunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += tamanhoChunk) {
+    binario += String.fromCharCode(...bytes.subarray(i, i + tamanhoChunk));
+  }
+  return btoa(binario);
+}
+
 /** Implementação com Cloudflare Workers AI (Whisper + Llama). */
 export function criarProvedorWorkersAi(ai: Ai): ConteudoProvider {
   return {
     async transcrever(audio) {
       const resultado = (await ai.run(MODELO_TRANSCRICAO, {
-        audio: Array.from(audio.bytes),
+        audio: paraBase64(audio.bytes),
       })) as { text?: string };
       return resultado.text?.trim() ?? "";
     },
