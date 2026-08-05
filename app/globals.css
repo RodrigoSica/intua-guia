@@ -608,6 +608,8 @@ footer { padding: 24px 0; background: var(--navy); }
 
 .admin-momento-form { display: flex; flex-direction: column; gap: 18px; max-width: 520px; padding: 22px; border: 1px solid rgba(249,236,220,.14); border-radius: 8px; background: rgba(249,236,220,.03); }
 .admin-momento-form__ajuda { margin: -10px 0 0; color: rgba(249,236,220,.5); font-size: 13px; }
+.admin-momento-form__erro { margin: 0; padding: 10px 14px; border: 1px solid rgba(224,114,93,.4); border-radius: 6px; background: rgba(224,114,93,.1); color: #f0b8ab; font-size: 13px; }
+.admin-builder__erro { margin-bottom: 24px; }
 .admin-momento-form label { display: flex; flex-direction: column; gap: 7px; }
 .admin-momento-form label > span { color: rgba(249,236,220,.6); font-family: var(--ritual); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
 .admin-momento-form input[type="text"], .admin-momento-form textarea { padding: 12px 14px; border: 1px solid rgba(249,236,220,.2); border-radius: 6px; background: rgba(249,236,220,.06); color: var(--cream-deep); font-family: var(--sans); font-size: 14px; }

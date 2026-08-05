@@ -20,6 +20,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
   const [momentos, setMomentos] = useState<Momento[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [enviando, setEnviando] = useState(false);
+  const [erroEnvio, setErroEnvio] = useState("");
   const [publicando, setPublicando] = useState(false);
 
   const [titulo, setTitulo] = useState("");
@@ -97,22 +98,53 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     audiosParaEnviar.forEach((blob, i) => form.append("audios", blob, `gravacao-${i + 1}.webm`));
     for (const foto of fotosArquivos) form.append("fotos", foto);
 
-    await fetch(`/api/admin/leituras/${leituraId}/momentos`, { method: "POST", body: form });
+    // Antes o resultado do fetch nunca era checado: se o envio falhasse (rede,
+    // servidor, o que fosse), o formulário limpava do mesmo jeito, dando a
+    // impressão de que o bloco tinha sido salvo — quando na verdade sumia de
+    // vez. Agora só limpa e recarrega se o servidor confirmou 201.
+    let ok = false;
+    try {
+      const res = await fetch(`/api/admin/leituras/${leituraId}/momentos`, { method: "POST", body: form });
+      ok = res.ok;
+      if (!ok) setErroEnvio(`Não foi possível salvar (erro ${res.status}). Tente novamente — nada foi perdido.`);
+    } catch {
+      setErroEnvio("Não foi possível salvar. Confira sua conexão e tente novamente — nada foi perdido.");
+    }
 
-    setTitulo("");
-    setResumo("");
-    setAudiosGravados([]);
-    setFotosArquivos([]);
-    await carregar();
+    if (ok) {
+      setErroEnvio("");
+      setTitulo("");
+      setResumo("");
+      setAudiosGravados([]);
+      setFotosArquivos([]);
+      await carregar();
+    } else {
+      // Falhou: título, resumo e fotos já continuam no estado (nunca foram
+      // tocados). Só precisa recolocar o áudio, caso uma gravação em
+      // andamento tenha sido incorporada a audiosParaEnviar acima. Assim o
+      // próximo clique em "Adicionar bloco" simplesmente tenta de novo, sem
+      // o usuário ter que preencher nada outra vez.
+      setAudiosGravados(audiosParaEnviar);
+    }
     setEnviando(false);
   }
 
   async function publicar() {
     setPublicando(true);
-    const res = await fetch(`/api/admin/leituras/${leituraId}/publicar`, { method: "POST" });
-    const data = await res.json();
-    setLeitura(data.leitura);
-    setPublicando(false);
+    setErroEnvio("");
+    try {
+      const res = await fetch(`/api/admin/leituras/${leituraId}/publicar`, { method: "POST" });
+      if (!res.ok) {
+        setErroEnvio(`Não foi possível publicar (erro ${res.status}). Tente novamente.`);
+        return;
+      }
+      const data = await res.json();
+      setLeitura(data.leitura);
+    } catch {
+      setErroEnvio("Não foi possível publicar. Confira sua conexão e tente novamente.");
+    } finally {
+      setPublicando(false);
+    }
   }
 
   if (carregando) return <p className="admin__carregando">Carregando...</p>;
@@ -141,6 +173,8 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
           </button>
         )}
       </div>
+
+      {erroEnvio && <p className="admin-momento-form__erro admin-builder__erro">⚠ {erroEnvio}</p>}
 
       <h2 className="admin-builder__subtitulo">Blocos ({momentos.length})</h2>
       <ol className="admin-builder__momentos">
