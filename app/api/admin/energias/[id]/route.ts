@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { getDb } from "../../../../../db";
-import { energias } from "../../../../../db/schema";
+import { clientes, energias } from "../../../../../db/schema";
 
 export async function GET(
   _request: Request,
@@ -73,7 +73,13 @@ export async function DELETE(
   try {
     const { id } = await params;
     const db = getDb();
+
+    // Mesmo cuidado da exclusão de leitura: sem depender do ON DELETE SET
+    // NULL, o atendimento ficaria apontando para um documento inexistente.
+    // Ele permanece no dashboard como histórico, só perde o atalho.
+    await db.update(clientes).set({ energiaId: null }).where(eq(clientes.energiaId, id));
     await db.delete(energias).where(eq(energias.id, id));
+
     return Response.json({ ok: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro inesperado";

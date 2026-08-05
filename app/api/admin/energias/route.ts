@@ -1,6 +1,10 @@
 import { desc } from "drizzle-orm";
 import { getDb } from "../../../../db";
-import { energias } from "../../../../db/schema";
+import { clientes, energias } from "../../../../db/schema";
+
+// Rótulo do atendimento no dashboard. Fixo aqui para que toda energia criada
+// apareça sob o mesmo nome e a Vanessa consiga filtrar por ele.
+export const ATENDIMENTO_ENERGIA = "Energia Vibracional do Nome";
 
 // Texto de abertura do modelo em PDF. Vem preenchido para a Vanessa não ter
 // que redigitar a cada cliente — é o mesmo em toda leitura —, mas fica num
@@ -24,12 +28,24 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const payload = (await request.json()) as { consulenteNome?: string };
+    const payload = (await request.json()) as {
+      consulenteNome?: string;
+      telefone?: string;
+      instagram?: string;
+      dataNascimento?: string;
+      veioPorOnde?: string;
+      quemIndicou?: string;
+      valorConsulta?: string;
+      status?: string;
+      dataAgendada?: string;
+    };
     const consulenteNome = payload.consulenteNome?.trim() ?? "";
 
     if (!consulenteNome) {
       return Response.json({ error: "Informe o nome da pessoa." }, { status: 400 });
     }
+
+    const limpar = (v?: string) => v?.trim() || null;
 
     const db = getDb();
     const id = crypto.randomUUID();
@@ -62,6 +78,24 @@ export async function POST(request: Request) {
       orientacoes: ORIENTACOES_PADRAO,
       secoes: JSON.stringify(secoes),
       status: "preparando",
+    });
+
+    // O documento entra no dashboard como um atendimento, igual às leituras —
+    // sem isso, a energia vibracional ficaria fora do controle de quem pagou
+    // e de quanto entrou no mês.
+    await db.insert(clientes).values({
+      id: crypto.randomUUID(),
+      energiaId: id,
+      nome: consulenteNome,
+      atendimento: ATENDIMENTO_ENERGIA,
+      telefone: limpar(payload.telefone),
+      instagram: limpar(payload.instagram),
+      dataNascimento: limpar(payload.dataNascimento),
+      veioPorOnde: limpar(payload.veioPorOnde),
+      quemIndicou: limpar(payload.quemIndicou),
+      dataAgendada: limpar(payload.dataAgendada),
+      valorConsulta: payload.valorConsulta ? Number(payload.valorConsulta) : null,
+      status: payload.status === "pago" ? "pago" : "pendente",
     });
 
     return Response.json({ id }, { status: 201 });

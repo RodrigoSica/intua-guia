@@ -1,0 +1,1 @@
+ALTER TABLE `clientes` ADD `energia_id` text REFERENCES energias(id);

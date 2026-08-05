@@ -76,6 +76,10 @@ export const energias = sqliteTable("energias", {
 export const clientes = sqliteTable("clientes", {
   id: text("id").primaryKey(),
   leituraId: text("leitura_id").references(() => leituras.id, { onDelete: "set null" }),
+  // Um atendimento é de um tipo só: ou é uma leitura da Sala de Leitura, ou é
+  // um documento de energia vibracional. Por isso os dois campos, com no
+  // máximo um preenchido — é o que deixa o dashboard levar direto ao trabalho.
+  energiaId: text("energia_id").references(() => energias.id, { onDelete: "set null" }),
   nome: text("nome").notNull(),
   veioPorOnde: text("veio_por_onde"), // WhatsApp | Recorrente | Indicação | Presencial...
   atendimento: text("atendimento"), // tipo de leitura/atendimento

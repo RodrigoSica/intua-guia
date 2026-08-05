@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 type Cliente = {
   id: string;
   leituraId: string | null;
+  energiaId: string | null;
   nome: string;
   veioPorOnde: string | null;
   atendimento: string | null;
@@ -19,7 +20,7 @@ type Cliente = {
   criadoEm: string;
 };
 
-type Campo = Exclude<keyof Cliente, "id" | "leituraId" | "criadoEm">;
+type Campo = Exclude<keyof Cliente, "id" | "leituraId" | "energiaId" | "criadoEm">;
 
 const MESES = [
   "janeiro", "fevereiro", "março", "abril", "maio", "junho",
@@ -178,9 +179,10 @@ export default function AdminClientesDashboard() {
   }
 
   async function removerCliente(cliente: Cliente) {
-    const aviso = cliente.leituraId
-      ? `Remover ${cliente.nome} do dashboard?\n\nA leitura dela continua publicada e o link que ela recebeu segue funcionando — sai só a linha daqui.`
-      : `Remover ${cliente.nome} do dashboard?`;
+    const aviso =
+      cliente.leituraId || cliente.energiaId
+        ? `Remover ${cliente.nome} do dashboard?\n\nO trabalho dela continua publicado e o link que ela recebeu segue funcionando — sai só a linha daqui.`
+        : `Remover ${cliente.nome} do dashboard?`;
     if (!window.confirm(aviso)) return;
 
     const res = await fetch(`/api/admin/clientes/${cliente.id}`, { method: "DELETE" });
@@ -393,6 +395,11 @@ export default function AdminClientesDashboard() {
                           {c.leituraId && (
                             <a className="admin-tag admin-tag--link" href={`/admin/leitura/${c.leituraId}`} title="Abrir a leitura">
                               ✦ leitura
+                            </a>
+                          )}
+                          {c.energiaId && (
+                            <a className="admin-tag admin-tag--link" href={`/admin/energia/${c.energiaId}`} title="Abrir a energia vibracional">
+                              ✦ nome
                             </a>
                           )}
                         </span>
