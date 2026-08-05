@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 // Sala de Leitura — v1. Ver docs/plano-sala-de-leitura.md para o desenho
 // completo. Escopo enxuto de propósito: sem tabela de consulente/histórico
@@ -47,4 +47,23 @@ export const audios = sqliteTable("audios", {
   ordem: integer("ordem").notNull(),
   r2Key: text("r2_key").notNull(),
   duracao: integer("duracao"), // segundos
+});
+
+// Fase 3 do plano (docs/plano-sala-de-leitura.md): visão de negócio dos
+// atendimentos, migrada da planilha "Consulentes 2026.xlsx". Uma linha por
+// atendimento (não por pessoa) — é o que a aba "Leituras" da planilha já
+// rastreava. "Mês" não vira coluna própria: é derivado de dataAgendada na UI.
+export const clientes = sqliteTable("clientes", {
+  id: text("id").primaryKey(),
+  leituraId: text("leitura_id").references(() => leituras.id, { onDelete: "set null" }),
+  nome: text("nome").notNull(),
+  veioPorOnde: text("veio_por_onde"), // WhatsApp | Recorrente | Indicação | Presencial...
+  atendimento: text("atendimento"), // tipo de leitura/atendimento
+  valorConsulta: real("valor_consulta"),
+  status: text("status").notNull().default("pendente"), // pago | pendente
+  dataNascimento: text("data_nascimento"), // ISO date
+  telefone: text("telefone"),
+  dataAgendada: text("data_agendada"), // ISO date
+  quemIndicou: text("quem_indicou"), // substitui a coluna "Observações" da planilha
+  criadoEm: text("criado_em").notNull().default(sql`CURRENT_TIMESTAMP`),
 });

@@ -1,38 +1,21 @@
-import { desc } from "drizzle-orm";
-import { getDb } from "../../db";
-import { leituras } from "../../db/schema";
+import AdminClientesDashboard from "../AdminClientesDashboard";
 
 export const metadata = { title: "Admin | Intua Guia" };
 
-export default async function AdminPage() {
-  const db = getDb();
-  const rows = await db.select().from(leituras).orderBy(desc(leituras.criadaEm));
-
+export default function AdminPage() {
   return (
     <main className="admin">
       <div className="container">
         <p className="eyebrow">Admin</p>
-        <h1>Leituras</h1>
+        <h1>Dashboard</h1>
         <span className="section-mark" aria-hidden="true">✦</span>
 
-        {rows.length === 0 ? (
-          <p className="admin__vazio">Nenhum pedido ainda. Compartilhe o link /solicitar com suas clientes.</p>
-        ) : (
-          <ul className="admin__lista">
-            {rows.map((leitura) => (
-              <li key={leitura.id}>
-                <a href={`/admin/leitura/${leitura.id}`} className="admin__item">
-                  <span className={`admin__status admin__status--${leitura.status}`}>
-                    {leitura.status === "publicada" ? "Publicada" : "Preparando"}
-                  </span>
-                  <span className="admin__nome">{leitura.consulenteNome}</span>
-                  <span className="admin__tipo">{leitura.tipoLeitura}</span>
-                  <span className="admin__data">{new Date(leitura.criadaEm).toLocaleDateString("pt-BR")}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
+        <nav className="admin-nav">
+          <a href="/admin/solicitar" className="button button--outline button--small">Solicitar leitura</a>
+          <a href="/admin/leituras" className="button button--coral button--small">Fazer leitura</a>
+        </nav>
+
+        <AdminClientesDashboard />
       </div>
     </main>
   );

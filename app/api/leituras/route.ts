@@ -1,5 +1,5 @@
 import { getDb } from "../../../db";
-import { leituras } from "../../../db/schema";
+import { clientes, leituras } from "../../../db/schema";
 
 const TIPOS_LEITURA = [
   "Se Desvendando",
@@ -38,15 +38,27 @@ export async function POST(request: Request) {
 
     const db = getDb();
     const token = gerarToken();
+    const leituraId = crypto.randomUUID();
 
     await db.insert(leituras).values({
-      id: crypto.randomUUID(),
+      id: leituraId,
       token,
       consulenteNome,
       consulenteNascimento,
       tipoLeitura,
       perguntas,
       status: "preparando",
+    });
+
+    // Todo pedido de leitura já entra como cliente no dashboard — os campos
+    // de negócio (telefone, valor, canal, indicação) o formulário não coleta;
+    // a Vanessa completa depois direto no dashboard.
+    await db.insert(clientes).values({
+      id: crypto.randomUUID(),
+      leituraId,
+      nome: consulenteNome,
+      dataNascimento: consulenteNascimento,
+      atendimento: tipoLeitura,
     });
 
     return Response.json({ token }, { status: 201 });

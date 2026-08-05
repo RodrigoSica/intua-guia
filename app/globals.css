@@ -625,7 +625,27 @@ footer { padding: 24px 0; background: var(--navy); }
 .admin-midia-lista button { align-self: auto; padding: 0 6px; border: 0; background: none; color: rgba(249,236,220,.5); font-size: 16px; line-height: 1; cursor: pointer; }
 .admin-midia-lista button:hover { color: var(--coral-bright); }
 
+.admin-nav { display: flex; gap: 12px; margin: 28px 0 36px; }
+
+.admin-clientes__resumo { display: flex; gap: 26px; margin-bottom: 20px; font-size: 14px; color: rgba(249,236,220,.6); }
+.admin-clientes__resumo strong { color: var(--cream-deep); font-size: 17px; font-family: var(--serif); }
+.admin-clientes__tabela-wrap { overflow-x: auto; border: 1px solid rgba(249,236,220,.12); border-radius: 6px; }
+.admin-clientes__tabela { width: 100%; border-collapse: collapse; font-size: 13px; }
+.admin-clientes__tabela th { padding: 12px 10px; text-align: left; white-space: nowrap; color: rgba(249,236,220,.5); font-family: var(--ritual); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; border-bottom: 1px solid rgba(249,236,220,.12); }
+.admin-clientes__tabela td { padding: 6px 8px; border-bottom: 1px solid rgba(249,236,220,.06); position: relative; }
+.admin-clientes__tabela input, .admin-clientes__tabela select {
+  width: 100%; min-width: 110px; padding: 8px 9px; border: 1px solid transparent; border-radius: 5px;
+  background: transparent; color: var(--cream-deep); font-family: var(--sans); font-size: 13px;
+}
+.admin-clientes__tabela input:hover, .admin-clientes__tabela select:hover { border-color: rgba(249,236,220,.14); }
+.admin-clientes__tabela input:focus, .admin-clientes__tabela select:focus { outline: none; border-color: var(--gold); background: rgba(249,236,220,.06); }
+.admin-clientes__mes { color: rgba(249,236,220,.5); font-size: 12px; white-space: nowrap; padding-left: 10px; }
+.admin-clientes__erro { position: absolute; bottom: -2px; left: 8px; font-size: 10px; color: #f0b8ab; }
+.admin-clientes__novo { display: flex; gap: 10px; margin-top: 20px; max-width: 420px; }
+.admin-clientes__novo input { flex: 1; padding: 12px 14px; border: 1px solid rgba(249,236,220,.2); border-radius: 6px; background: rgba(249,236,220,.06); color: var(--cream-deep); font-size: 14px; }
+
 @media (max-width: 720px) {
   .admin__item { grid-template-columns: 1fr; gap: 6px; }
   .admin__data { justify-self: start; }
+  .admin-nav { flex-wrap: wrap; }
 }
