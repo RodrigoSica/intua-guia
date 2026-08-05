@@ -28,7 +28,9 @@ const MODELO_TRANSCRICAO = "@cf/openai/whisper-large-v3-turbo";
 // Modelo de texto mais leve do catálogo Workers AI — atende bem a uma tarefa
 // de extração/reescrita curta e consome menos do tier gratuito que os modelos
 // maiores (ver "Priorizar recursos gratuitos" no pedido original).
-const MODELO_TEXTO = "@cf/meta/llama-3.1-8b-instruct";
+// "@cf/meta/llama-3.1-8b-instruct" (sem "-fast") foi descontinuado pela
+// Cloudflare em 2026-05-30 — usar sempre a variante ativa do catálogo.
+const MODELO_TEXTO = "@cf/meta/llama-3.1-8b-instruct-fast";
 
 const PROMPT_SISTEMA = `Você organiza o relato de uma taróloga sobre um momento de uma leitura de tarot. Use SOMENTE o que está na transcrição — nunca invente cartas, nomes, eventos ou interpretações que não foram ditos. Responda só com um JSON válido, sem nada antes ou depois, com exatamente estas chaves:
 {"titulo": "até 8 palavras, o assunto do momento", "resumo": "2 a 3 frases curtas, em tom de convite, sem contar tudo — é uma isca para a consulente ouvir o áudio, não um substituto dele", "pontosChave": "3 a 5 itens curtos, um por linha, cada linha começando com \\"- \\""}`;
