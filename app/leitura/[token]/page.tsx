@@ -1,6 +1,7 @@
 import { asc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { audios, fotos, leituras, momentos } from "../../../db/schema";
+import LeituraSala from "../../LeituraSala";
 
 export default async function LeituraPage({
   params,
@@ -65,35 +66,7 @@ export default async function LeituraPage({
         <h1>Olá, {leitura.consulenteNome.split(" ")[0]}</h1>
         <span className="section-mark" aria-hidden="true">✦</span>
 
-        <ol className="leitura-momentos">
-          {momentosCompletos.map((momento, index) => (
-            <li key={momento.id} className="leitura-momento">
-              <span className="leitura-momento__numero">Momento {index + 1} de {momentosCompletos.length}</span>
-              {momento.titulo && <h2>{momento.titulo}</h2>}
-              {momento.resumo && <p className="leitura-momento__isca">{momento.resumo}</p>}
-              {momento.fotos.length > 0 && (
-                <div className="leitura-momento__fotos">
-                  {momento.fotos.map((foto) => (
-                    <img key={foto.id} src={`/midia/${foto.r2Key}`} alt="Cartas reveladas na leitura" loading="lazy" />
-                  ))}
-                </div>
-              )}
-              {momento.audios.length > 0 && (
-                <div className="leitura-momento__audios">
-                  {momento.audios.map((audio) => (
-                    <audio key={audio.id} controls preload="none" src={`/midia/${audio.r2Key}`} />
-                  ))}
-                </div>
-              )}
-              {momento.pontosChave && (
-                <details className="leitura-momento__resumo">
-                  <summary>Pontos-chave deste momento</summary>
-                  <p>{momento.pontosChave}</p>
-                </details>
-              )}
-            </li>
-          ))}
-        </ol>
+        <LeituraSala consulenteNome={leitura.consulenteNome} momentos={momentosCompletos} />
       </div>
     </main>
   );

@@ -566,18 +566,28 @@ footer { padding: 24px 0; background: var(--navy); }
 .leitura-sala__conteudo { max-width: 640px; text-align: left; }
 .leitura-sala--pronta h1 { text-align: left; }
 .leitura-sala--pronta .section-mark { margin-left: 0; }
+.leitura-sala__boasvindas { margin: 26px 0 0; padding: 20px 24px; border-left: 2px solid var(--gold); background: rgba(197,154,90,.06); border-radius: 0 8px 8px 0; color: rgba(249,236,220,.82); font-family: var(--serif); font-size: 17px; font-style: italic; font-weight: 400; line-height: 1.55; }
+.leitura-sala__boasvindas span { display: block; margin-top: 10px; color: var(--gold); font-family: var(--ritual); font-size: 12px; font-style: normal; letter-spacing: .08em; text-transform: uppercase; }
+.leitura-sala__baixar { margin-top: 44px; }
 .leitura-momentos { list-style: none; margin: 40px 0 0; padding: 0; display: flex; flex-direction: column; gap: 40px; }
 .leitura-momento { padding-top: 32px; border-top: 1px solid rgba(249,236,220,.14); }
 .leitura-momento__numero { display: block; margin-bottom: 10px; color: var(--gold); font-family: var(--ritual); font-size: 11px; font-weight: 400; letter-spacing: .15em; text-transform: uppercase; }
 .leitura-momento h2 { margin: 0 0 14px; color: var(--cream-deep); font-family: var(--serif); font-size: 24px; font-weight: 600; }
 .leitura-momento__fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: 16px; }
 .leitura-momento__fotos img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 6px; border: 1px solid rgba(249,236,220,.14); }
+.leitura-momento__foto-zoom { position: relative; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.leitura-momento__foto-zoom img { transition: opacity .25s ease; }
+.leitura-momento__foto-zoom:hover img, .leitura-momento__foto-zoom:focus-visible img { opacity: .82; }
 .leitura-momento__audios { display: flex; flex-direction: column; gap: 10px; }
 .leitura-momento audio { width: 100%; }
 .leitura-momento__isca { margin: 6px 0 0; color: rgba(249,236,220,.72); font-size: 15px; font-weight: 300; line-height: 1.6; }
-.leitura-momento__resumo { margin-top: 14px; }
-.leitura-momento__resumo summary { color: var(--gold); font-family: var(--ritual); font-size: 12px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
-.leitura-momento__resumo p { margin: 10px 0 0; color: rgba(249,236,220,.72); font-size: 15px; font-weight: 300; line-height: 1.6; white-space: pre-line; }
+.leitura-momento__pontos { margin-top: 16px; padding: 16px 18px; border: 1px solid rgba(197,154,90,.35); border-radius: 8px; background: rgba(197,154,90,.08); }
+.leitura-momento__pontos-rotulo { margin: 0 0 8px; color: var(--gold); font-family: var(--ritual); font-size: 12px; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; }
+.leitura-momento__pontos-texto { margin: 0; color: rgba(249,236,220,.85); font-size: 15px; font-weight: 300; line-height: 1.6; white-space: pre-line; }
+
+.leitura-lightbox { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 30px; background: rgba(2,19,30,.92); cursor: zoom-out; }
+.leitura-lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 30px 60px rgba(0,0,0,.5); }
+.leitura-lightbox__fechar { position: absolute; top: 20px; right: 24px; width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid rgba(249,236,220,.3); border-radius: 50%; background: rgba(249,236,220,.08); color: var(--cream-deep); font-size: 20px; line-height: 1; cursor: pointer; }
 
 /* Admin */
 .admin { min-height: 100vh; padding: 60px 0 100px; background: var(--navy); color: var(--cream-deep); }

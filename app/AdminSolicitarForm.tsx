@@ -32,8 +32,7 @@ export default function AdminSolicitarForm() {
 
   const [status, setStatus] = useState<"idle" | "enviando" | "erro">("idle");
   const [erro, setErro] = useState("");
-  const [link, setLink] = useState("");
-  const [copiado, setCopiado] = useState(false);
+  const [leituraId, setLeituraId] = useState("");
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -58,41 +57,30 @@ export default function AdminSolicitarForm() {
           status: pagamento,
         }),
       });
-      const data = (await response.json()) as { token?: string; error?: string };
+      const data = (await response.json()) as { id?: string; token?: string; error?: string };
 
-      if (!response.ok || !data.token) {
+      if (!response.ok || !data.id) {
         setErro(data.error ?? "Não foi possível enviar. Tente novamente.");
         setStatus("erro");
         return;
       }
 
-      setLink(`${window.location.origin}/leitura/${data.token}`);
+      setLeituraId(data.id);
     } catch {
       setErro("Não foi possível enviar. Verifique sua conexão e tente novamente.");
       setStatus("erro");
     }
   }
 
-  if (link) {
+  if (leituraId) {
     return (
       <div className="solicitacao-sucesso">
         <span className="section-mark" aria-hidden="true">✦</span>
         <h2>Leitura criada!</h2>
-        <p>Já está no dashboard. Guarde ou copie o link abaixo para enviar à consulente.</p>
-        <div className="solicitacao-link">
-          <input readOnly value={link} onFocus={(e) => e.currentTarget.select()} />
-          <button
-            type="button"
-            className="button button--coral button--small"
-            onClick={async () => {
-              await navigator.clipboard.writeText(link);
-              setCopiado(true);
-              window.setTimeout(() => setCopiado(false), 2000);
-            }}
-          >
-            {copiado ? "Copiado!" : "Copiar link"}
-          </button>
-        </div>
+        <p>Já está no dashboard. O link para a consulente só nasce quando você publicar, lá no fim da montagem.</p>
+        <a className="button button--coral button--small" href={`/admin/leitura/${leituraId}`}>
+          Montar leitura
+        </a>
         <a className="admin__voltar admin-solicitar__outra" href="/admin/solicitar">
           + Cadastrar outra leitura
         </a>

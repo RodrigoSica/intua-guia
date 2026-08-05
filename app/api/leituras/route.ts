@@ -81,7 +81,7 @@ export async function POST(request: Request) {
       status: payload.status === "pago" ? "pago" : "pendente",
     });
 
-    return Response.json({ token }, { status: 201 });
+    return Response.json({ id: leituraId, token }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro inesperado";
     return Response.json({ error: message }, { status: 500 });
