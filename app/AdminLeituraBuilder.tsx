@@ -33,6 +33,33 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
+  // Fotos de celular costumam vir em 3-8MB. Redimensionamos para no máximo
+  // 1600px no lado maior e recomprimimos em WebP, o que derruba o tamanho
+  // pra ~150-400KB sem perda visível — economiza espaço no R2 automaticamente,
+  // sem exigir nenhuma ação da Vanessa.
+  async function comprimirFoto(arquivo: File): Promise<File> {
+    const bitmap = await createImageBitmap(arquivo);
+    const maxLado = 1600;
+    const escala = Math.min(1, maxLado / Math.max(bitmap.width, bitmap.height));
+    const largura = Math.round(bitmap.width * escala);
+    const altura = Math.round(bitmap.height * escala);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = largura;
+    canvas.height = altura;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return arquivo;
+    ctx.drawImage(bitmap, 0, 0, largura, altura);
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/webp", 0.8)
+    );
+    if (!blob) return arquivo;
+
+    const novoNome = arquivo.name.replace(/\.\w+$/, "") + ".webp";
+    return new File([blob], novoNome, { type: "image/webp" });
+  }
+
   async function iniciarGravacao() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const recorder = new MediaRecorder(stream);
@@ -244,10 +271,12 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
               accept="image/*"
               capture="environment"
               hidden
-              onChange={(e) => {
+              onChange={async (e) => {
                 const novaFoto = e.target.files?.[0];
-                if (novaFoto) setFotosArquivos((atual) => [...atual, novaFoto]);
                 e.target.value = "";
+                if (!novaFoto) return;
+                const comprimida = await comprimirFoto(novaFoto);
+                setFotosArquivos((atual) => [...atual, comprimida]);
               }}
             />
           </div>
