@@ -712,7 +712,7 @@ footer { padding: 24px 0; background: var(--navy); }
 .energia { background: var(--navy); }
 .energia__capa { padding: 96px 0 84px; background: var(--navy); text-align: center; }
 .energia__capa h1 { margin: 0; color: var(--coral-bright); font-family: var(--serif); font-size: clamp(38px,6vw,68px); font-weight: 600; line-height: 1.08; }
-.energia__nome { margin: 26px 0 0; color: var(--gold); font-family: var(--serif); font-size: clamp(20px,2.6vw,28px); font-style: italic; font-weight: 400; }
+.energia__nome { margin: 26px 0 0; color: var(--gold); font-family: var(--serif); font-size: clamp(40px,5.2vw,56px); font-style: italic; font-weight: 400; }
 .energia__claro { padding: 60px 0; background: var(--peach); color: var(--ink); }
 .energia__claro + .energia__claro { padding-top: 0; }
 .energia__claro h2 { margin: 0 0 26px; color: var(--coral); font-family: var(--serif); font-size: clamp(26px,3.2vw,36px); font-weight: 600; }
