@@ -14,6 +14,15 @@ type Momento = {
   audios: Audio[];
 };
 
+function blobParaDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+}
+
 export default function LeituraSala({
   consulenteNome,
   momentos,
@@ -22,31 +31,63 @@ export default function LeituraSala({
   momentos: Momento[];
 }) {
   const [fotoAberta, setFotoAberta] = useState<string | null>(null);
+  const [baixando, setBaixando] = useState(false);
 
-  // Salva uma cópia funcional da página, não só o texto: um <base> na cópia faz
-  // toda URL relativa (fotos, áudios, folha de estilo) resolver de volta pro
-  // site, então o arquivo abre com o mesmo visual e mídia tocando — só falha
-  // se ela abrir sem internet nenhuma, o que é uma limitação razoável.
-  function baixarPagina() {
-    const clone = document.documentElement.cloneNode(true) as HTMLElement;
-    const head = clone.querySelector("head");
-    if (head) {
-      const base = document.createElement("base");
-      base.href = `${window.location.origin}/`;
-      head.insertBefore(base, head.firstChild);
+  // A leitura pode ser apagada do servidor no futuro (pra liberar espaço), e a
+  // consulente pode reabrir isso sem internet nenhuma — então o arquivo salvo
+  // não pode DEPENDER do site continuar no ar. Em vez de um <base> apontando
+  // de volta pro servidor, cada foto e áudio vira base64 embutido no próprio
+  // HTML: o arquivo carrega sozinho, sempre, com ou sem conexão.
+  async function baixarPagina() {
+    setBaixando(true);
+    try {
+      const clone = document.documentElement.cloneNode(true) as HTMLElement;
+      clone.querySelector(".leitura-sala__baixar")?.remove();
+
+      // A folha de estilo do próprio site também some se ela abrir offline —
+      // embute o CSS como <style> em vez de deixar como <link> externo.
+      const folhas = Array.from(clone.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'));
+      for (const folha of folhas) {
+        const href = folha.getAttribute("href");
+        if (!href) continue;
+        try {
+          const css = await (await fetch(href)).text();
+          const estilo = document.createElement("style");
+          estilo.textContent = css;
+          folha.replaceWith(estilo);
+        } catch {
+          // Se falhar (ex: fonte do Google, que exige internet de qualquer
+          // forma), deixa o <link> como estava — degrada pra fonte padrão,
+          // mas não trava o download.
+        }
+      }
+
+      // Fotos e áudios: busca o arquivo real do R2 e embute como data URI.
+      const midias = Array.from(clone.querySelectorAll<HTMLElement>("img[src^='/midia/'], audio[src^='/midia/']"));
+      for (const midia of midias) {
+        const src = midia.getAttribute("src");
+        if (!src) continue;
+        try {
+          const blob = await (await fetch(src)).blob();
+          midia.setAttribute("src", await blobParaDataUrl(blob));
+        } catch {
+          // Uma mídia que falhar não deve travar o download das outras.
+        }
+      }
+
+      const html = `<!DOCTYPE html>\n${clone.outerHTML}`;
+      const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `leitura-${consulenteNome.split(" ")[0].toLowerCase()}.html`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } finally {
+      setBaixando(false);
     }
-    clone.querySelector(".leitura-sala__baixar")?.remove();
-
-    const html = `<!DOCTYPE html>\n${clone.outerHTML}`;
-    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `leitura-${consulenteNome.split(" ")[0].toLowerCase()}.html`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
   }
 
   return (
@@ -97,9 +138,19 @@ export default function LeituraSala({
         ))}
       </ol>
 
-      <button type="button" className="button button--outline leitura-sala__baixar" onClick={baixarPagina}>
-        ⭳ Baixar esta leitura
+      <button
+        type="button"
+        className="button button--outline leitura-sala__baixar"
+        onClick={baixarPagina}
+        disabled={baixando}
+      >
+        {baixando ? "Preparando arquivo..." : "⭳ Baixar esta leitura"}
       </button>
+      {baixando && (
+        <p className="leitura-sala__baixar-aviso">
+          Baixando fotos e áudios para dentro do arquivo — pode levar alguns segundos.
+        </p>
+      )}
 
       {fotoAberta && (
         <div className="leitura-lightbox" role="button" tabIndex={0} onClick={() => setFotoAberta(null)} aria-label="Fechar ampliação">

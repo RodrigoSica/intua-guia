@@ -569,6 +569,7 @@ footer { padding: 24px 0; background: var(--navy); }
 .leitura-sala__boasvindas { margin: 26px 0 0; padding: 20px 24px; border-left: 2px solid var(--gold); background: rgba(197,154,90,.06); border-radius: 0 8px 8px 0; color: rgba(249,236,220,.82); font-family: var(--serif); font-size: 17px; font-style: italic; font-weight: 400; line-height: 1.55; }
 .leitura-sala__boasvindas span { display: block; margin-top: 10px; color: var(--gold); font-family: var(--ritual); font-size: 12px; font-style: normal; letter-spacing: .08em; text-transform: uppercase; }
 .leitura-sala__baixar { margin-top: 44px; }
+.leitura-sala__baixar-aviso { margin: 10px 0 0; color: rgba(249,236,220,.55); font-size: 13px; }
 .leitura-momentos { list-style: none; margin: 40px 0 0; padding: 0; display: flex; flex-direction: column; gap: 40px; }
 .leitura-momento { padding-top: 32px; border-top: 1px solid rgba(249,236,220,.14); }
 .leitura-momento__numero { display: block; margin-bottom: 10px; color: var(--gold); font-family: var(--ritual); font-size: 11px; font-weight: 400; letter-spacing: .15em; text-transform: uppercase; }
