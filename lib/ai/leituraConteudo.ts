@@ -32,10 +32,17 @@ const MODELO_TRANSCRICAO = "@cf/openai/whisper-large-v3-turbo";
 // Cloudflare em 2026-05-30 — usar sempre a variante ativa do catálogo.
 const MODELO_TEXTO = "@cf/meta/llama-3.1-8b-instruct-fast";
 
-const PROMPT_SISTEMA = `Você organiza o relato de uma taróloga sobre um momento de uma leitura de tarot, em português do Brasil. Use SOMENTE o que está na transcrição — nunca invente cartas, nomes, eventos ou interpretações que não foram ditos.
-- titulo: até 8 palavras, o assunto do momento.
-- resumo: 2 a 3 frases curtas, em tom de convite. Não conte tudo — é uma isca para a consulente ouvir o áudio, não um substituto dele.
-- pontosChave: 3 a 5 itens curtos.
+const PROMPT_SISTEMA = `Você descreve, em português do Brasil, o que uma taróloga falou durante um momento de uma leitura de tarot. Use SOMENTE o que está na transcrição — nunca invente cartas, nomes, eventos, conselhos ou interpretações que não foram ditos.
+
+Regras de tom (tão importantes quanto o conteúdo):
+- Narre de forma descritiva e neutra o que foi abordado. Não escreva como propaganda ou texto comercial: nada de "descubra", "aprenda a", "não perca", chamadas para ação ou promessas.
+- Nunca faça afirmações categóricas, positivas ou negativas, sobre a pessoa ou o futuro dela (nada de "você vai conseguir", "isso é um problema", "tudo vai dar certo"). A leitura é uma reflexão, não uma garantia nem um diagnóstico.
+- Mantenha o texto no campo do subjetivo: descreva do que a leitura tratou, sem tirar conclusões nem dizer o que a consulente deve fazer. A interpretação e a decisão são dela.
+
+- titulo: até 8 palavras, o assunto do momento — descritivo, não um gancho de venda.
+- resumo: 2 a 3 frases curtas descrevendo do que se trata o momento, sem contar os detalhes. É contexto para quem vai ouvir o áudio, não um substituto dele.
+- pontosChave: 3 a 5 itens curtos, cada um nomeando um tema ou carta abordado — sem conselhos, sem conclusões.
+
 Responda apenas com o JSON {"titulo", "resumo", "pontosChave"}, sem texto antes ou depois.`;
 
 // JSON mode do Workers AI: em vez de pedir JSON em prosa e garimpar chaves no
