@@ -4,7 +4,15 @@ import { clientes } from "../../../../db/schema";
 
 export async function GET() {
   const db = getDb();
-  const rows = await db.select().from(clientes).orderBy(desc(clientes.criadoEm));
+
+  // Atendimento mais recente primeiro. No SQLite, DESC joga os NULL para o
+  // fim — então quem ainda não tem data agendada fica agrupado embaixo, perto
+  // do formulário de cadastro, que é justamente onde ela acabou de criar.
+  const rows = await db
+    .select()
+    .from(clientes)
+    .orderBy(desc(clientes.dataAgendada), desc(clientes.criadoEm));
+
   return Response.json({ clientes: rows });
 }
 

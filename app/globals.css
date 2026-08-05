@@ -627,8 +627,22 @@ footer { padding: 24px 0; background: var(--navy); }
 
 .admin-nav { display: flex; gap: 12px; margin: 28px 0 36px; }
 
-.admin-clientes__resumo { display: flex; gap: 26px; margin-bottom: 20px; font-size: 14px; color: rgba(249,236,220,.6); }
-.admin-clientes__resumo strong { color: var(--cream-deep); font-size: 17px; font-family: var(--serif); }
+.admin-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+.admin-card { padding: 16px 18px; border: 1px solid rgba(249,236,220,.12); border-radius: 8px; background: rgba(249,236,220,.03); }
+.admin-card--alerta { border-color: rgba(224,114,93,.4); background: rgba(224,114,93,.08); }
+.admin-card__valor { display: block; color: var(--cream-deep); font-family: var(--serif); font-size: 22px; font-weight: 600; }
+.admin-card--alerta .admin-card__valor { color: #f0b8ab; }
+.admin-card__rotulo { display: block; margin-top: 4px; color: rgba(249,236,220,.5); font-family: var(--ritual); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+
+.admin-aniversarios { margin-bottom: 18px; padding: 12px 16px; border: 1px solid rgba(197,154,90,.3); border-radius: 6px; background: rgba(197,154,90,.08); color: rgba(249,236,220,.8); font-size: 13px; }
+.admin-aniversarios strong { color: var(--gold); font-weight: 500; }
+.admin-aniversarios a { color: rgba(249,236,220,.9); text-decoration: underline; text-underline-offset: 2px; }
+
+.admin-filtros { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.admin-filtros__busca { flex: 1; min-width: 220px; }
+.admin-filtros input, .admin-filtros select { padding: 10px 13px; border: 1px solid rgba(249,236,220,.2); border-radius: 6px; background: rgba(249,236,220,.06); color: var(--cream-deep); font-family: var(--sans); font-size: 13px; }
+.admin-filtros input:focus, .admin-filtros select:focus { outline: none; border-color: var(--gold); }
+
 .admin-clientes__tabela-wrap { overflow-x: auto; border: 1px solid rgba(249,236,220,.12); border-radius: 6px; }
 .admin-clientes__tabela { width: 100%; border-collapse: collapse; font-size: 13px; }
 .admin-clientes__tabela th { padding: 12px 10px; text-align: left; white-space: nowrap; color: rgba(249,236,220,.5); font-family: var(--ritual); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; border-bottom: 1px solid rgba(249,236,220,.12); }
@@ -639,13 +653,121 @@ footer { padding: 24px 0; background: var(--navy); }
 }
 .admin-clientes__tabela input:hover, .admin-clientes__tabela select:hover { border-color: rgba(249,236,220,.14); }
 .admin-clientes__tabela input:focus, .admin-clientes__tabela select:focus { outline: none; border-color: var(--gold); background: rgba(249,236,220,.06); }
+.admin-linha--pendente td:first-child { box-shadow: inset 2px 0 0 var(--coral-bright); }
 .admin-clientes__mes { color: rgba(249,236,220,.5); font-size: 12px; white-space: nowrap; padding-left: 10px; }
-.admin-clientes__erro { position: absolute; bottom: -2px; left: 8px; font-size: 10px; color: #f0b8ab; }
+.admin-clientes__erro { position: absolute; right: 8px; bottom: -2px; white-space: nowrap; font-size: 10px; color: #f0b8ab; }
+
+.admin-celula-nome { display: flex; align-items: center; gap: 6px; }
+.admin-celula-nome input { min-width: 150px; }
+.admin-tags { display: flex; gap: 4px; }
+.admin-tag { padding: 2px 6px; border-radius: 20px; background: rgba(249,236,220,.1); color: rgba(249,236,220,.65); font-family: var(--ritual); font-size: 9px; letter-spacing: .04em; white-space: nowrap; }
+.admin-tag--link { background: rgba(197,154,90,.18); color: var(--gold); }
+.admin-celula-nasc { display: flex; align-items: center; gap: 4px; }
+.admin-celula-nasc__idade { color: rgba(249,236,220,.4); font-size: 11px; }
+.admin-celula-contato { display: flex; align-items: center; gap: 4px; }
+.admin-contato-botao { padding: 3px 8px; border-radius: 4px; background: rgba(120,180,140,.15); color: #8fd4a8; font-family: var(--ritual); font-size: 9px; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+.admin-contato-botao:hover { background: rgba(120,180,140,.28); }
+.admin-clientes__acoes { text-align: right; }
+.admin-clientes__acoes button { padding: 4px 8px; border: 0; border-radius: 4px; background: none; color: rgba(249,236,220,.35); font-size: 17px; line-height: 1; cursor: pointer; }
+.admin-clientes__acoes button:hover { background: rgba(224,114,93,.15); color: var(--coral-bright); }
+
 .admin-clientes__novo { display: flex; gap: 10px; margin-top: 20px; max-width: 420px; }
 .admin-clientes__novo input { flex: 1; padding: 12px 14px; border: 1px solid rgba(249,236,220,.2); border-radius: 6px; background: rgba(249,236,220,.06); color: var(--cream-deep); font-size: 14px; }
 
-@media (max-width: 720px) {
+/* Energia vibracional — builder no admin */
+.admin-energia__nome { display: block; width: 100%; margin: 10px 0 0; padding: 4px 0; border: 0; border-bottom: 1px solid rgba(249,236,220,.14); background: none; color: var(--cream-deep); font-family: var(--serif); font-size: clamp(28px,3.4vw,40px); font-weight: 600; }
+.admin-energia__nome:focus { outline: none; border-bottom-color: var(--gold); }
+.admin-energia__salvo { margin: -22px 0 26px; font-family: var(--ritual); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.admin-energia__salvo--salvo { color: #8fd4a8; }
+.admin-energia__salvo--salvando { color: rgba(249,236,220,.45); }
+.admin-energia__salvo--erro { color: #f0b8ab; }
+.admin-energia__bloco { margin-bottom: 18px; padding: 22px; border: 1px solid rgba(249,236,220,.14); border-radius: 8px; background: rgba(249,236,220,.03); }
+.admin-energia__bloco textarea { width: 100%; padding: 12px 14px; border: 1px solid rgba(249,236,220,.2); border-radius: 6px; background: rgba(249,236,220,.06); color: var(--cream-deep); font-family: var(--sans); font-size: 14px; line-height: 1.6; resize: vertical; }
+.admin-energia__bloco-topo { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.admin-energia__titulo { flex: 1; padding: 10px 12px; border: 1px solid rgba(197,154,90,.3); border-radius: 6px; background: rgba(197,154,90,.08); color: var(--gold); font-family: var(--ritual); font-size: 16px; letter-spacing: .1em; }
+.admin-energia__titulo:focus { outline: none; border-color: var(--gold); }
+.admin-energia__campo { margin-top: 20px; }
+.admin-energia__rotulo { display: block; margin-bottom: 9px; color: rgba(249,236,220,.55); font-family: var(--ritual); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.admin-energia__letras { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.admin-energia__coluna { position: relative; display: flex; flex-direction: column; gap: 4px; width: 62px; }
+.admin-energia__coluna input { width: 100%; padding: 8px 4px; border: 1px solid rgba(249,236,220,.18); border-radius: 5px; background: rgba(249,236,220,.05); color: var(--cream-deep); font-family: var(--sans); font-size: 14px; text-align: center; }
+.admin-energia__coluna input:focus { outline: none; border-color: var(--gold); }
+.admin-energia__letra { color: var(--coral-bright) !important; font-family: var(--serif) !important; font-size: 17px !important; font-weight: 600; }
+.admin-energia__remover--coluna { position: absolute; top: -7px; right: -5px; padding: 0 4px; border-radius: 50%; background: var(--navy-soft); font-size: 13px; line-height: 1.3; }
+.admin-energia__tabela { margin-bottom: 12px; padding: 12px; border: 1px dashed rgba(249,236,220,.16); border-radius: 6px; }
+.admin-energia__linha { display: flex; gap: 6px; margin-bottom: 6px; }
+.admin-energia__linha input { flex: 1; padding: 9px 11px; border: 1px solid rgba(249,236,220,.18); border-radius: 5px; background: rgba(249,236,220,.05); color: var(--cream-deep); font-family: var(--sans); font-size: 13px; }
+.admin-energia__linha input:focus { outline: none; border-color: var(--gold); }
+.admin-energia__rotulo-campo { max-width: 190px; color: var(--coral-bright) !important; }
+.admin-energia__tabela-acoes { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.admin-energia__remover { padding: 4px 8px; border: 0; border-radius: 4px; background: none; color: rgba(249,236,220,.4); font-family: var(--ritual); font-size: 15px; line-height: 1; cursor: pointer; }
+.admin-energia__remover:hover { background: rgba(224,114,93,.15); color: var(--coral-bright); }
+.admin-energia__tabela-acoes .admin-energia__remover { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+.admin-energia__adicionar { width: 100%; margin-top: 6px; }
+.admin-energia__adicionar span { margin-right: 8px; font-size: 17px; font-weight: 700; }
+.admin__lista--energia .admin__item { grid-template-columns: 110px 1fr auto; }
+
+/* Energia vibracional — página que a consulente recebe. Mantém os blocos do
+   modelo em PDF (capa navy, corpo claro, fecho navy) com as fontes do site. */
+.energia { background: var(--navy); }
+.energia__capa { padding: 96px 0 84px; background: var(--navy); text-align: center; }
+.energia__capa h1 { margin: 0; color: var(--coral-bright); font-family: var(--serif); font-size: clamp(38px,6vw,68px); font-weight: 600; line-height: 1.08; }
+.energia__nome { margin: 26px 0 0; color: var(--gold); font-family: var(--serif); font-size: clamp(20px,2.6vw,28px); font-style: italic; font-weight: 400; }
+.energia__claro { padding: 60px 0; background: var(--peach); color: var(--ink); }
+.energia__claro + .energia__claro { padding-top: 0; }
+.energia__claro h2 { margin: 0 0 26px; color: var(--coral); font-family: var(--serif); font-size: clamp(26px,3.2vw,36px); font-weight: 600; }
+.energia__claro p { margin: 0 0 16px; font-family: var(--sans); font-size: 16px; font-weight: 300; line-height: 1.72; }
+.energia__secao-titulo { letter-spacing: .12em; }
+.energia__letras-wrap { overflow-x: auto; margin-bottom: 26px; }
+.energia__letras { border-collapse: collapse; }
+.energia__letras th { padding: 12px 20px; border: 1px solid rgba(9,37,53,.16); color: var(--coral); font-family: var(--serif); font-size: 21px; font-weight: 600; text-align: center; }
+.energia__letras td { padding: 12px 20px; color: var(--ink); font-family: var(--sans); font-size: 16px; text-align: center; }
+.energia__info { width: 100%; max-width: 620px; margin: 0 0 22px; border-collapse: collapse; }
+.energia__info th { padding: 10px 14px; border: 1px solid rgba(9,37,53,.12); color: var(--coral); font-family: var(--ritual); font-size: 14px; font-weight: 400; text-align: left; white-space: nowrap; }
+.energia__info td { padding: 10px 14px; border: 1px solid rgba(9,37,53,.12); font-family: var(--sans); font-size: 15px; font-weight: 300; }
+.energia__texto { max-width: 900px; }
+.energia__rodape { padding: 90px 0 70px; background: var(--navy); text-align: center; }
+.energia__gratidao { max-width: 760px; margin: 0 auto; color: var(--gold); font-family: var(--serif); font-size: clamp(20px,2.4vw,27px); font-weight: 500; line-height: 1.5; }
+.energia__rodape .section-mark { margin: 34px auto; }
+.energia__marca { display: inline-flex; flex-direction: column; align-items: center; gap: 12px; }
+.energia__marca img { width: 132px; height: auto; }
+.energia__marca span { color: var(--gold); font-family: var(--ritual); font-size: 13px; letter-spacing: .14em; }
+.energia__vazio { padding: 120px 0; text-align: center; }
+.energia__vazio h1 { margin: 12px 0 14px; color: var(--cream-deep); font-family: var(--serif); font-size: clamp(28px,3.4vw,40px); font-weight: 600; }
+.energia__vazio p { color: rgba(249,236,220,.6); }
+
+@media (max-width: 980px) {
+  .admin-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 760px) {
+  .energia__capa { padding: 66px 0 56px; }
+  .energia__claro { padding: 44px 0; }
+  .energia__linha, .admin-energia__linha { flex-wrap: wrap; }
+  .admin-energia__rotulo-campo { max-width: none; }
+}
+
+/* A Vanessa trabalha do celular — é lá que ela grava os áudios e fotografa as
+   cartas. Uma tabela de 13 colunas em rolagem horizontal seria inutilizável,
+   então cada linha vira um cartão com os rótulos à esquerda. */
+@media (max-width: 760px) {
   .admin__item { grid-template-columns: 1fr; gap: 6px; }
   .admin__data { justify-self: start; }
   .admin-nav { flex-wrap: wrap; }
+
+  .admin-clientes__tabela-wrap { overflow-x: visible; border: 0; }
+  .admin-clientes__tabela, .admin-clientes__tabela tbody, .admin-clientes__tabela tr, .admin-clientes__tabela td { display: block; width: auto; }
+  .admin-clientes__tabela thead { display: none; }
+  .admin-clientes__tabela tr { margin-bottom: 12px; padding: 6px 4px; border: 1px solid rgba(249,236,220,.14); border-radius: 8px; background: rgba(249,236,220,.03); }
+  .admin-clientes__tabela td { display: grid; grid-template-columns: 96px 1fr; align-items: center; gap: 8px; padding: 4px 8px; border-bottom: 0; }
+  .admin-clientes__tabela td::before {
+    content: attr(data-label); color: rgba(249,236,220,.45); font-family: var(--ritual);
+    font-size: 9px; letter-spacing: .06em; text-transform: uppercase;
+  }
+  .admin-clientes__tabela input, .admin-clientes__tabela select { min-width: 0; border-color: rgba(249,236,220,.12); }
+  .admin-linha--pendente td:first-child { box-shadow: none; }
+  .admin-linha--pendente { border-left: 3px solid var(--coral-bright); }
+  .admin-clientes__mes { padding-left: 8px; }
+  .admin-clientes__acoes { text-align: left; }
+  .admin-clientes__erro { position: static; }
 }

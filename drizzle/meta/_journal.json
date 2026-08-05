@@ -36,6 +36,20 @@
       "when": 1785933102158,
       "tag": "0004_hot_mockingbird",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1785934158833,
+      "tag": "0005_mean_vulcan",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1785935098694,
+      "tag": "0006_yummy_taskmaster",
+      "breakpoints": true
     }
   ]
 }

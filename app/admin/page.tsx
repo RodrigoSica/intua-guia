@@ -13,6 +13,7 @@ export default function AdminPage() {
         <nav className="admin-nav">
           <a href="/admin/solicitar" className="button button--outline button--small">Solicitar leitura</a>
           <a href="/admin/leituras" className="button button--coral button--small">Fazer leitura</a>
+          <a href="/admin/energias" className="button button--outline button--small">Energia vibracional do nome</a>
         </nav>
 
         <AdminClientesDashboard />
