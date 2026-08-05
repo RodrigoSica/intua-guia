@@ -37,17 +37,31 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     const recorder = new MediaRecorder(stream);
     chunksRef.current = [];
     recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
-    recorder.onstop = () => {
-      setAudiosGravados((atual) => [...atual, new Blob(chunksRef.current, { type: "audio/webm" })]);
-      stream.getTracks().forEach((track) => track.stop());
-    };
     recorder.start();
     mediaRecorderRef.current = recorder;
     setGravando(true);
   }
 
-  function pararGravacao() {
-    mediaRecorderRef.current?.stop();
+  // Retorna uma Promise que só resolve depois que o navegador terminou de
+  // gravar (MediaRecorder.stop() é assíncrono). Sem isso, clicar em
+  // "Adicionar bloco" logo após parar podia enviar o bloco ANTES do áudio
+  // ficar pronto — e quando ele finalmente chegava, caía no bloco seguinte
+  // (o que estava sendo preenchido na hora), não no que você acabou de gravar.
+  function pararGravacaoEObterAudio(): Promise<Blob | null> {
+    return new Promise((resolve) => {
+      const recorder = mediaRecorderRef.current;
+      if (!recorder || recorder.state === "inactive") { resolve(null); return; }
+      recorder.onstop = () => {
+        recorder.stream.getTracks().forEach((track) => track.stop());
+        resolve(new Blob(chunksRef.current, { type: "audio/webm" }));
+      };
+      recorder.stop();
+    });
+  }
+
+  async function pararGravacao() {
+    const blob = await pararGravacaoEObterAudio();
+    if (blob) setAudiosGravados((atual) => [...atual, blob]);
     setGravando(false);
   }
 
@@ -67,10 +81,20 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
   async function adicionarBloco(event: React.FormEvent) {
     event.preventDefault();
     setEnviando(true);
+
+    // Se esqueceu de clicar "Parar gravação" antes de enviar, para agora e
+    // espera o áudio — assim ele entra NESTE bloco, não no próximo.
+    let audiosParaEnviar = audiosGravados;
+    if (gravando) {
+      const blob = await pararGravacaoEObterAudio();
+      setGravando(false);
+      if (blob) audiosParaEnviar = [...audiosGravados, blob];
+    }
+
     const form = new FormData();
     form.set("titulo", titulo);
     form.set("resumo", resumo);
-    audiosGravados.forEach((blob, i) => form.append("audios", blob, `gravacao-${i + 1}.webm`));
+    audiosParaEnviar.forEach((blob, i) => form.append("audios", blob, `gravacao-${i + 1}.webm`));
     for (const foto of fotosArquivos) form.append("fotos", foto);
 
     await fetch(`/api/admin/leituras/${leituraId}/momentos`, { method: "POST", body: form });
