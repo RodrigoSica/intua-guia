@@ -715,6 +715,20 @@ footer { padding: 24px 0; background: var(--navy); }
 .admin-energia__titulo:focus { outline: none; border-color: var(--gold); }
 .admin-energia__campo { margin-top: 20px; }
 .admin-energia__rotulo { display: block; margin-bottom: 9px; color: rgba(249,236,220,.55); font-family: var(--ritual); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.admin-energia__gravador-principal { margin-top: 20px; }
+.admin-energia__construtores { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px; }
+.admin-energia-gravador { min-width: 0; }
+.admin-energia-gravador--compacto { display: contents; }
+.admin-energia-gravador--compacto .admin-midia-lista { flex-basis: 100%; width: min(100%, 520px); }
+.admin-energia-gravador__indice { flex: 0 0 auto; color: rgba(249,236,220,.55); font-family: var(--ritual); font-size: 10px; letter-spacing: .05em; text-transform: uppercase; }
+.admin-energia-gravador .admin-midia-lista li { gap: 10px; }
+.admin-energia-gravador .admin-midia-lista audio { flex: 1; min-width: 150px; }
+.admin-energia-gravador .admin-momento-form__erro { margin-top: 10px; }
+.admin-energia__automatico { padding: 14px; border: 1px dashed rgba(197,154,90,.32); border-radius: 6px; background: rgba(197,154,90,.05); }
+.admin-energia__linha--automatica { align-items: center; margin-bottom: 5px; }
+.admin-energia__linha--automatica span, .admin-energia__linha--automatica strong { flex: 1; padding: 9px 11px; border: 1px solid rgba(249,236,220,.14); border-radius: 5px; font-family: var(--sans); font-size: 13px; font-weight: 400; }
+.admin-energia__linha--automatica span { max-width: 190px; color: var(--coral-bright); }
+.admin-energia__linha--automatica strong { color: var(--cream-deep); }
 .admin-energia__letras { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .admin-energia__coluna { position: relative; display: flex; flex-direction: column; gap: 4px; width: 62px; }
 .admin-energia__coluna input { width: 100%; padding: 8px 4px; border: 1px solid rgba(249,236,220,.18); border-radius: 5px; background: rgba(249,236,220,.05); color: var(--cream-deep); font-family: var(--sans); font-size: 14px; text-align: center; }
@@ -753,11 +767,11 @@ footer { padding: 24px 0; background: var(--navy); }
 
 /* Energia vibracional — página que a consulente recebe. Mantém os blocos do
    modelo em PDF (capa navy, corpo claro, fecho navy) com as fontes do site. */
-.energia { background: var(--navy); }
+.energia { background: #FFE2D4; }
 .energia__capa { padding: 96px 0 84px; background: var(--navy); text-align: center; }
 .energia__capa h1 { margin: 0; color: var(--coral-bright); font-family: var(--serif); font-size: clamp(38px,6vw,68px); font-weight: 600; line-height: 1.08; }
 .energia__nome { margin: 26px 0 0; color: var(--gold); font-family: var(--serif); font-size: clamp(40px,5.2vw,56px); font-style: italic; font-weight: 400; }
-.energia__claro { padding: 60px 0; background: var(--peach); color: var(--ink); }
+.energia__claro { padding: 60px 0; background: #FFE2D4; color: var(--ink); }
 .energia__claro + .energia__claro { padding-top: 0; }
 .energia__claro h2 { margin: 0 0 26px; color: var(--coral); font-family: var(--serif); font-size: clamp(26px,3.2vw,36px); font-weight: 600; }
 .energia__claro p { margin: 0 0 16px; font-family: var(--sans); font-size: 16px; font-weight: 300; line-height: 1.72; }
@@ -769,10 +783,14 @@ footer { padding: 24px 0; background: var(--navy); }
 .energia__info { width: 100%; max-width: 620px; margin: 0 0 22px; border-collapse: collapse; }
 .energia__info th { padding: 10px 14px; border: 1px solid rgba(9,37,53,.12); color: var(--coral); font-family: var(--ritual); font-size: 14px; font-weight: 400; text-align: left; white-space: nowrap; }
 .energia__info td { padding: 10px 14px; border: 1px solid rgba(9,37,53,.12); font-family: var(--sans); font-size: 15px; font-weight: 300; }
+.energia__info--automatica { margin-top: -4px; }
 .energia__texto { max-width: 900px; }
+.energia__audios { display: grid; gap: 10px; max-width: 620px; margin: 24px 0 0; }
+.energia__audios audio { display: block; width: 100%; min-height: 40px; }
 .energia__rodape { padding: 90px 0 70px; background: var(--navy); text-align: center; }
 .energia__gratidao { max-width: 760px; margin: 0 auto; color: var(--gold); font-family: var(--serif); font-size: clamp(20px,2.4vw,27px); font-weight: 500; line-height: 1.5; }
 .energia__rodape .section-mark { margin: 34px auto; }
+.energia__baixar { margin: 0 auto 34px; }
 .energia__marca { display: inline-flex; flex-direction: column; align-items: center; gap: 12px; }
 .energia__marca img { width: 132px; height: auto; }
 .energia__marca span { color: var(--gold); font-family: var(--ritual); font-size: 13px; letter-spacing: .14em; }
@@ -789,6 +807,7 @@ footer { padding: 24px 0; background: var(--navy); }
   .energia__claro { padding: 44px 0; }
   .energia__linha, .admin-energia__linha { flex-wrap: wrap; }
   .admin-energia__rotulo-campo { max-width: none; }
+  .admin-energia__linha--automatica span { max-width: none; }
   .admin-preform__grade { grid-template-columns: 1fr; }
 }
 

@@ -1,7 +1,9 @@
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
-import { energias } from "../../../db/schema";
+import { energiaAudios, energias } from "../../../db/schema";
 import type { Secao } from "../../AdminEnergiaBuilder";
+import EnergiaDownloadButton from "../../EnergiaDownloadButton";
+import { linhasAutomaticas } from "../../../lib/energiaVibracional";
 
 export const metadata = { title: "Energia vibracional do nome | Intua Guia" };
 
@@ -50,6 +52,12 @@ export default async function EnergiaPage({
   } catch {
     secoes = [];
   }
+  const audios = await db
+    .select()
+    .from(energiaAudios)
+    .where(eq(energiaAudios.energiaId, energia.id))
+    .orderBy(asc(energiaAudios.secaoId), asc(energiaAudios.ordem));
+  const audiosDasOrientacoes = audios.filter((audio) => audio.secaoId === null);
 
   return (
     <main className="energia">
@@ -67,6 +75,13 @@ export default async function EnergiaPage({
             {paragrafos(energia.orientacoes).map((p, i) => (
               <p key={i}>{p}</p>
             ))}
+            {audiosDasOrientacoes.length > 0 && (
+              <div className="energia__audios">
+                {audiosDasOrientacoes.map((audio, i) => (
+                  <audio key={audio.id} controls preload="none" src={`/midia/${audio.r2Key}`} aria-label={`Áudio das orientações ${i + 1}`} />
+                ))}
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -95,6 +110,19 @@ export default async function EnergiaPage({
               </div>
             )}
 
+            {secao.letras.length > 0 && (
+              <table className="energia__info energia__info--automatica">
+                <tbody>
+                  {linhasAutomaticas(secao.letras).map((linha) => (
+                    <tr key={linha.rotulo}>
+                      <th scope="row">{linha.rotulo}</th>
+                      <td>{linha.valor}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
             {secao.tabelas.map((tabela, iTabela) => {
               const linhas = tabela.linhas.filter((l) => l.rotulo || l.valor);
               if (linhas.length === 0) return null;
@@ -115,6 +143,13 @@ export default async function EnergiaPage({
             {paragrafos(secao.texto).map((p, i) => (
               <p key={i} className="energia__texto">{p}</p>
             ))}
+            {audios.filter((audio) => audio.secaoId === secao.id).length > 0 && (
+              <div className="energia__audios">
+                {audios.filter((audio) => audio.secaoId === secao.id).map((audio, i) => (
+                  <audio key={audio.id} controls preload="none" src={`/midia/${audio.r2Key}`} aria-label={`Áudio do bloco ${i + 1}`} />
+                ))}
+              </div>
+            )}
           </div>
         </section>
       ))}
@@ -126,6 +161,7 @@ export default async function EnergiaPage({
             Que esse mergulho traga clareza, conexão e caminhos mais alinhados com a sua essência!
           </p>
           <span className="section-mark" aria-hidden="true">✦</span>
+          <EnergiaDownloadButton consulenteNome={energia.consulenteNome} />
           <a className="energia__marca" href="https://instagram.com/intua.guia" target="_blank" rel="noreferrer">
             <img src="/intua-guia-logo.svg" alt="Intua Guia" />
             <span>@intua.guia</span>

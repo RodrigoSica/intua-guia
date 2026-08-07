@@ -1,6 +1,7 @@
 import { desc } from "drizzle-orm";
 import { getDb } from "../../../../db";
 import { clientes, energias } from "../../../../db/schema";
+import { letrasDoNome } from "../../../../lib/energiaVibracional";
 
 // Rótulo do atendimento no dashboard. Fixo aqui para que toda energia criada
 // apareça sob o mesmo nome e a Vanessa consiga filtrar por ele.
@@ -59,15 +60,8 @@ export async function POST(request: Request) {
       .map((parte) => ({
         id: crypto.randomUUID(),
         titulo: parte.toLocaleUpperCase("pt-BR"),
-        letras: [...parte.toLocaleUpperCase("pt-BR")].map((letra) => ({ letra, numero: "" })),
-        tabelas: [
-          {
-            linhas: [
-              { rotulo: "Vogais:", valor: "Desenvolvimento espiritual" },
-              { rotulo: "Consoantes:", valor: "Realização e trabalho no plano físico" },
-            ],
-          },
-        ],
+        letras: letrasDoNome(parte),
+        tabelas: [],
         texto: "",
       }));
 

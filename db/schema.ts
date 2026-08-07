@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 // Sala de Leitura — v1. Ver docs/plano-sala-de-leitura.md para o desenho
 // completo. Escopo enxuto de propósito: sem tabela de consulente/histórico
@@ -69,6 +69,22 @@ export const energias = sqliteTable("energias", {
   criadaEm: text("criada_em").notNull().default(sql`CURRENT_TIMESTAMP`),
   publicadaEm: text("publicada_em"),
 });
+
+// Áudios da Energia Vibracional são apenas a voz da Vanessa. Eles não passam
+// por transcrição, resumo ou qualquer outra etapa de IA.
+export const energiaAudios = sqliteTable(
+  "energia_audios",
+  {
+    id: text("id").primaryKey(),
+    energiaId: text("energia_id")
+      .notNull()
+      .references(() => energias.id, { onDelete: "cascade" }),
+    secaoId: text("secao_id"),
+    ordem: integer("ordem").notNull(),
+    r2Key: text("r2_key").notNull(),
+  },
+  (tabela) => [index("energia_audios_energia_secao_idx").on(tabela.energiaId, tabela.secaoId)]
+);
 
 // Fase 3 do plano (docs/plano-sala-de-leitura.md): visão de negócio dos
 // atendimentos, migrada da planilha "Consulentes 2026.xlsx". Uma linha por

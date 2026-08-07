@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import AdminEnergiaGravador, { type EnergiaAudio } from "./AdminEnergiaGravador";
+import { letrasDoNome, linhasAutomaticas, numeroDaLetra } from "../lib/energiaVibracional";
 
 // Forma das seções guardadas em `energias.secoes` (JSON). Cada seção é um
 // pedaço do nome: a grade de letras/números, quantas tabelas de apoio ela
@@ -28,8 +30,8 @@ function novaSecao(): Secao {
   return {
     id: crypto.randomUUID(),
     titulo: "",
-    letras: [{ letra: "", numero: "" }],
-    tabelas: [{ linhas: [{ rotulo: "", valor: "" }] }],
+    letras: [],
+    tabelas: [],
     texto: "",
   };
 }
@@ -39,6 +41,7 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
   const [nome, setNome] = useState("");
   const [orientacoes, setOrientacoes] = useState("");
   const [secoes, setSecoes] = useState<Secao[]>([]);
+  const [audios, setAudios] = useState<EnergiaAudio[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [estadoSalvo, setEstadoSalvo] = useState<"salvo" | "salvando" | "erro">("salvo");
   const [publicando, setPublicando] = useState(false);
@@ -58,6 +61,7 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
         } catch {
           setSecoes([]);
         }
+        setAudios(data.audios ?? []);
       }
       setCarregando(false);
     })();
@@ -96,6 +100,19 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
 
   function mudarSecao(indice: number, mudanca: Partial<Secao>) {
     atualizarSecoes(secoes.map((s, i) => (i === indice ? { ...s, ...mudanca } : s)));
+  }
+
+  function mudarTituloSecao(indice: number, titulo: string) {
+    const normalizado = titulo.toLocaleUpperCase("pt-BR");
+    mudarSecao(indice, { titulo: normalizado, letras: letrasDoNome(normalizado) });
+  }
+
+  function adicionarAudio(audio: EnergiaAudio) {
+    setAudios((atuais) => [...atuais, audio]);
+  }
+
+  function removerAudio(id: string) {
+    setAudios((atuais) => atuais.filter((audio) => audio.id !== id));
   }
 
   async function publicar() {
@@ -170,6 +187,16 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
           placeholder="Texto de abertura do documento"
         />
         <p className="admin-momento-form__ajuda">Uma linha em branco separa os parágrafos.</p>
+        <div className="admin-energia__gravador-principal">
+          <span className="admin-energia__rotulo">Áudios das orientações</span>
+          <AdminEnergiaGravador
+            energiaId={energiaId}
+            audios={audios.filter((audio) => audio.secaoId === null)}
+            onAdicionar={adicionarAudio}
+            onRemover={removerAudio}
+          />
+          <p className="admin-momento-form__ajuda">A gravação fica apenas anexada à leitura — sem transcrição ou pontos-chave.</p>
+        </div>
       </section>
 
       <h2 className="admin-builder__subtitulo">Blocos do nome ({secoes.length})</h2>
@@ -180,7 +207,7 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
             <input
               className="admin-energia__titulo"
               value={secao.titulo}
-              onChange={(e) => mudarSecao(iSecao, { titulo: e.target.value.toLocaleUpperCase("pt-BR") })}
+              onChange={(e) => mudarTituloSecao(iSecao, e.target.value)}
               placeholder="RAFAELA"
             />
             <button
@@ -209,7 +236,13 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
                     onChange={(e) =>
                       mudarSecao(iSecao, {
                         letras: secao.letras.map((p, i) =>
-                          i === iLetra ? { ...p, letra: e.target.value.toLocaleUpperCase("pt-BR") } : p
+                          i === iLetra
+                            ? {
+                                ...p,
+                                letra: e.target.value.toLocaleUpperCase("pt-BR"),
+                                numero: numeroDaLetra(e.target.value),
+                              }
+                            : p
                         ),
                       })
                     }
@@ -218,13 +251,7 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
                   <input
                     className="admin-energia__numero"
                     value={par.numero}
-                    onChange={(e) =>
-                      mudarSecao(iSecao, {
-                        letras: secao.letras.map((p, i) =>
-                          i === iLetra ? { ...p, numero: e.target.value } : p
-                        ),
-                      })
-                    }
+                    readOnly
                     aria-label={`Número da letra ${iLetra + 1}`}
                   />
                   <button
@@ -240,14 +267,36 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
                 </div>
               ))}
             </div>
-            <button
-              type="button"
-              className="button button--outline button--small"
-              onClick={() => mudarSecao(iSecao, { letras: [...secao.letras, { letra: "", numero: "" }] })}
-            >
-              + Coluna
-            </button>
+            <div className="admin-energia__construtores">
+              <AdminEnergiaGravador
+                compacto
+                energiaId={energiaId}
+                secaoId={secao.id}
+                audios={audios.filter((audio) => audio.secaoId === secao.id)}
+                onAdicionar={adicionarAudio}
+                onRemover={removerAudio}
+              />
+              <button
+                type="button"
+                className="button button--outline button--small"
+                onClick={() => mudarSecao(iSecao, { letras: [...secao.letras, { letra: "", numero: "" }] })}
+              >
+                + Coluna
+              </button>
+            </div>
           </div>
+
+          {secao.letras.length > 0 && (
+            <div className="admin-energia__campo admin-energia__automatico">
+              <span className="admin-energia__rotulo">Informações calculadas automaticamente</span>
+              {linhasAutomaticas(secao.letras).map((linha) => (
+                <div key={linha.rotulo} className="admin-energia__linha admin-energia__linha--automatica">
+                  <span>{linha.rotulo}</span>
+                  <strong>{linha.valor}</strong>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="admin-energia__campo">
             <span className="admin-energia__rotulo">Informações complementares</span>

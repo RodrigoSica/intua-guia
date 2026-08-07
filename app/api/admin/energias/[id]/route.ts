@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { getDb } from "../../../../../db";
-import { clientes, energias } from "../../../../../db/schema";
+import { clientes, energiaAudios, energias } from "../../../../../db/schema";
 
 export async function GET(
   _request: Request,
@@ -14,7 +14,13 @@ export async function GET(
     return Response.json({ error: "Documento não encontrado." }, { status: 404 });
   }
 
-  return Response.json({ energia });
+  const audios = await db
+    .select()
+    .from(energiaAudios)
+    .where(eq(energiaAudios.energiaId, id))
+    .orderBy(asc(energiaAudios.secaoId), asc(energiaAudios.ordem));
+
+  return Response.json({ energia, audios });
 }
 
 export async function PATCH(
@@ -78,6 +84,7 @@ export async function DELETE(
     // NULL, o atendimento ficaria apontando para um documento inexistente.
     // Ele permanece no dashboard como histórico, só perde o atalho.
     await db.update(clientes).set({ energiaId: null }).where(eq(clientes.energiaId, id));
+    await db.delete(energiaAudios).where(eq(energiaAudios.energiaId, id));
     await db.delete(energias).where(eq(energias.id, id));
 
     return Response.json({ ok: true });
