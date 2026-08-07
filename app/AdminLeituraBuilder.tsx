@@ -337,7 +337,12 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
           Ver
         </a>
         {leitura.status === "publicada" ? (
-          <span className="admin__status admin__status--publicada">Publicada</span>
+          <>
+            <span className="admin__status admin__status--publicada">Publicada</span>
+            <button type="button" className="button button--outline button--small" onClick={publicar} disabled={publicando}>
+              {publicando ? "Publicando..." : "Publicar novamente"}
+            </button>
+          </>
         ) : (
           <button type="button" className="button button--coral button--small" onClick={publicar} disabled={publicando || momentos.length === 0}>
             {publicando ? "Publicando..." : "Publicar"}
