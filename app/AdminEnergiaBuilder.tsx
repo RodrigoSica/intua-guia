@@ -235,6 +235,17 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
                 </span>
               ))}
             </div>
+            {secao.letras.length > 0 && (
+              <div className="admin-energia__automatico">
+                <span className="admin-energia__rotulo">Informações calculadas automaticamente</span>
+                {linhasAutomaticas(secao.letras).map((linha) => (
+                  <div key={linha.rotulo} className="admin-energia__linha admin-energia__linha--automatica">
+                    <span>{linha.rotulo}</span>
+                    <strong>{linha.valor}</strong>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="admin-energia__letras-verticais">
               {secao.letras.map((par, iLetra) => {
                 const chave = normalizarLetra(par.letra);
@@ -259,18 +270,6 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
               })}
             </div>
           </div>
-
-          {secao.letras.length > 0 && (
-            <div className="admin-energia__campo admin-energia__automatico">
-              <span className="admin-energia__rotulo">Informações calculadas automaticamente</span>
-              {linhasAutomaticas(secao.letras).map((linha) => (
-                <div key={linha.rotulo} className="admin-energia__linha admin-energia__linha--automatica">
-                  <span>{linha.rotulo}</span>
-                  <strong>{linha.valor}</strong>
-                </div>
-              ))}
-            </div>
-          )}
 
           <div className="admin-energia__campo">
             <span className="admin-energia__rotulo">Texto da leitura</span>

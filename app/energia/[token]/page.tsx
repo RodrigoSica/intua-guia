@@ -102,6 +102,16 @@ export default async function EnergiaPage({
                     </span>
                   ))}
                 </div>
+                <table className="energia__info energia__info--automatica">
+                  <tbody>
+                    {linhasAutomaticas(secao.letras).map((linha) => (
+                      <tr key={linha.rotulo}>
+                        <th scope="row">{linha.rotulo}</th>
+                        <td>{linha.valor}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
                 <div className="energia__letras-verticais">
                   {secao.letras.map((par, i) => {
                   const chave = normalizarLetra(par.letra);
@@ -127,19 +137,6 @@ export default async function EnergiaPage({
                   })}
                 </div>
               </>
-            )}
-
-            {secao.letras.length > 0 && (
-              <table className="energia__info energia__info--automatica">
-                <tbody>
-                  {linhasAutomaticas(secao.letras).map((linha) => (
-                    <tr key={linha.rotulo}>
-                      <th scope="row">{linha.rotulo}</th>
-                      <td>{linha.valor}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             )}
 
             {secao.tabelas.map((tabela, iTabela) => {
