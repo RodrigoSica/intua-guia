@@ -3,7 +3,7 @@ import { getDb } from "../../../db";
 import { energiaAudios, energias } from "../../../db/schema";
 import type { Secao } from "../../AdminEnergiaBuilder";
 import EnergiaDownloadButton from "../../EnergiaDownloadButton";
-import { linhasAutomaticas } from "../../../lib/energiaVibracional";
+import { linhasAutomaticas, normalizarLetra } from "../../../lib/energiaVibracional";
 
 export const metadata = { title: "Energia vibracional do nome | Intua Guia" };
 
@@ -58,6 +58,7 @@ export default async function EnergiaPage({
     .where(eq(energiaAudios.energiaId, energia.id))
     .orderBy(asc(energiaAudios.secaoId), asc(energiaAudios.ordem));
   const audiosDasOrientacoes = audios.filter((audio) => audio.secaoId === null);
+  const letrasVerticaisExibidas = new Set<string>();
 
   return (
     <main className="energia">
@@ -103,6 +104,9 @@ export default async function EnergiaPage({
                 </div>
                 <div className="energia__letras-verticais">
                   {secao.letras.map((par, i) => {
+                  const chave = normalizarLetra(par.letra);
+                  if (!chave || letrasVerticaisExibidas.has(chave)) return null;
+                  letrasVerticaisExibidas.add(chave);
                   const audiosDaLetra = audios.filter(
                     (audio) => audio.secaoId === secao.id && audio.letraIndice === i
                   );

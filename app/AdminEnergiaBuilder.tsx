@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import AdminEnergiaGravador, { type EnergiaAudio } from "./AdminEnergiaGravador";
-import { letrasDoNome, linhasAutomaticas } from "../lib/energiaVibracional";
+import { letrasDoNome, linhasAutomaticas, normalizarLetra } from "../lib/energiaVibracional";
 
 // Forma das seções guardadas em `energias.secoes` (JSON). Cada seção é um
 // pedaço do nome: a grade de letras/números, quantas tabelas de apoio ela
@@ -140,6 +140,7 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
   if (!energia) return <p className="admin__carregando">Documento não encontrado.</p>;
 
   const link = typeof window !== "undefined" ? `${window.location.origin}/energia/${energia.token}` : "";
+  const letrasVerticaisExibidas = new Set<string>();
 
   return (
     <div className="admin-energia">
@@ -235,7 +236,11 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
               ))}
             </div>
             <div className="admin-energia__letras-verticais">
-              {secao.letras.map((par, iLetra) => (
+              {secao.letras.map((par, iLetra) => {
+                const chave = normalizarLetra(par.letra);
+                if (!chave || letrasVerticaisExibidas.has(chave)) return null;
+                letrasVerticaisExibidas.add(chave);
+                return (
                 <div key={iLetra} className="admin-energia__letra-linha">
                   <div className="admin-energia__letra-identidade">
                     <span className="admin-energia__letra">{par.letra}</span>
@@ -250,7 +255,8 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
                     onRemover={removerAudio}
                   />
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

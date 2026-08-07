@@ -20,6 +20,10 @@ function base(letra: string) {
   return letra.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleUpperCase("pt-BR");
 }
 
+export function normalizarLetra(letra: string) {
+  return base(letra);
+}
+
 export function numeroDaLetra(letra: string) {
   return NUMEROS_POR_LETRA[base(letra)] ?? "";
 }
