@@ -168,6 +168,10 @@ const faqs = [
     answer: "Sim, exceto: saúde, justiça, paternidade, jogos de azar ou trabalhos mágicos para terceiros.",
   },
   {
+    question: "Há temas que não fazem parte das consultas?",
+    answer: "Sim. Como utilizo o Tarot como instrumento de orientação e autoconhecimento, não realizo consultas para confirmar paternidade ou traições, prever resultados judiciais, confirmar doenças ou indicar tratamentos, investigar a vida de terceiros sem envolvimento direto da consulente, prever datas exatas de acontecimentos ou indicar números para apostas e promessas de ganhos financeiros.",
+  },
+  {
     question: "O que acontece depois da consulta?",
     answer: "A leitura continua reverberando. Você pode ouvir quantas vezes quiser e me chamar se surgirem dúvidas pontuais.",
   },
