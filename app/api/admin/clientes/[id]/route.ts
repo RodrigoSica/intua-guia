@@ -1,6 +1,19 @@
+import { env } from "cloudflare:workers";
 import { eq } from "drizzle-orm";
 import { getDb } from "../../../../../db";
-import { clientes } from "../../../../../db/schema";
+import {
+  audios,
+  clientes,
+  energiaAudios,
+  energias,
+  fotos,
+  leituras,
+  momentos,
+} from "../../../../../db/schema";
+
+interface Env {
+  MIDIA: R2Bucket;
+}
 
 const CAMPOS_EDITAVEIS = [
   "nome",
@@ -67,12 +80,69 @@ export async function DELETE(
   try {
     const { id } = await params;
     const db = getDb();
+    const [cliente] = await db.select().from(clientes).where(eq(clientes.id, id)).limit(1);
 
-    // Só remove a linha do dashboard. A leitura em si (áudios, fotos, o link
-    // que a consulente já recebeu) fica intacta — apagar isso junto seria
-    // destruir a entrega por causa de uma limpeza de cadastro.
+    if (!cliente) {
+      return Response.json({ error: "Cliente não encontrado." }, { status: 404 });
+    }
+
+    // Apenas cadastros recentes, ainda em preparação, são removidos em cascata.
+    // Consultas já publicadas permanecem intactas como histórico de atendimento.
+    const { MIDIA } = env as unknown as Env;
+
+    if (cliente.leituraId) {
+      const [leitura] = await db
+        .select({ id: leituras.id, status: leituras.status })
+        .from(leituras)
+        .where(eq(leituras.id, cliente.leituraId))
+        .limit(1);
+
+      if (leitura?.status === "preparando") {
+        let cursor: string | undefined;
+        do {
+          const lote = await MIDIA.list({ prefix: `l/${leitura.id}/`, cursor });
+          if (lote.objects.length > 0) {
+            await MIDIA.delete(lote.objects.map((objeto) => objeto.key));
+          }
+          cursor = lote.truncated ? lote.cursor : undefined;
+        } while (cursor);
+
+        const momentosDaLeitura = await db
+          .select({ id: momentos.id })
+          .from(momentos)
+          .where(eq(momentos.leituraId, leitura.id));
+        for (const momento of momentosDaLeitura) {
+          await db.delete(audios).where(eq(audios.momentoId, momento.id));
+          await db.delete(fotos).where(eq(fotos.momentoId, momento.id));
+        }
+        await db.delete(momentos).where(eq(momentos.leituraId, leitura.id));
+        await db.delete(leituras).where(eq(leituras.id, leitura.id));
+      }
+    }
+
+    if (cliente.energiaId) {
+      const [energia] = await db
+        .select({ id: energias.id, status: energias.status })
+        .from(energias)
+        .where(eq(energias.id, cliente.energiaId))
+        .limit(1);
+
+      if (energia?.status === "preparando") {
+        let cursor: string | undefined;
+        do {
+          const lote = await MIDIA.list({ prefix: `e/${energia.id}/`, cursor });
+          if (lote.objects.length > 0) {
+            await MIDIA.delete(lote.objects.map((objeto) => objeto.key));
+          }
+          cursor = lote.truncated ? lote.cursor : undefined;
+        } while (cursor);
+
+        await db.delete(energiaAudios).where(eq(energiaAudios.energiaId, energia.id));
+        await db.delete(energias).where(eq(energias.id, energia.id));
+      }
+    }
+
     await db.delete(clientes).where(eq(clientes.id, id));
-
     return Response.json({ ok: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro inesperado";
