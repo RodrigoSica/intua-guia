@@ -31,7 +31,11 @@ export default function EnergiaDownloadButton({ consulenteNome }: { consulenteNo
           // Sem CSS local, o HTML ainda segue disponível com a fonte padrão.
         }
       }
-      const midias = Array.from(clone.querySelectorAll<HTMLElement>("audio[src^='/midia/'], img[src^='/midia/']"));
+      const midias = Array.from(
+        clone.querySelectorAll<HTMLElement>(
+          "audio[src^='/midia/'], img[src^='/midia/'], img[src='/intua-guia-logo.svg']"
+        )
+      );
       for (const midia of midias) {
         const src = midia.getAttribute("src");
         if (!src) continue;
