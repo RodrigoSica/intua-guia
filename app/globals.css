@@ -729,6 +729,8 @@ footer { padding: 24px 0; background: var(--navy); }
 .admin-energia__letra-identidade { display: flex; flex: 0 0 72px; flex-direction: column; align-items: center; gap: 2px; padding-right: 12px; border-right: 1px solid rgba(249,236,220,.14); }
 .admin-energia__letra-identidade .admin-energia__letra { color: var(--coral-bright); font-family: var(--serif); font-size: 22px; font-weight: 600; line-height: 1; }
 .admin-energia__letra-identidade .admin-energia__numero { color: rgba(249,236,220,.7); font-size: 12px; }
+.admin-energia__numeros-horizontais { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.admin-energia__numeros-horizontais span { display: grid; width: 62px; min-height: 34px; place-items: center; border: 1px solid rgba(249,236,220,.18); border-radius: 5px; background: rgba(249,236,220,.05); color: var(--cream-deep); font-family: var(--sans); font-size: 13px; }
 .admin-energia__automatico { padding: 14px; border: 1px dashed rgba(197,154,90,.32); border-radius: 6px; background: rgba(197,154,90,.05); }
 .admin-energia__linha--automatica { align-items: center; margin-bottom: 5px; }
 .admin-energia__linha--automatica span, .admin-energia__linha--automatica strong { flex: 1; padding: 9px 11px; border: 1px solid rgba(249,236,220,.14); border-radius: 5px; font-family: var(--sans); font-size: 13px; font-weight: 400; }
@@ -790,6 +792,8 @@ footer { padding: 24px 0; background: var(--navy); }
 .energia__letra-identidade { display: flex; flex: 0 0 58px; flex-direction: column; align-items: center; gap: 2px; padding-right: 14px; border-right: 1px solid rgba(9,37,53,.14); }
 .energia__letra-identidade strong { color: var(--coral); font-family: var(--serif); font-size: 24px; }
 .energia__letra-identidade span { color: var(--ink); font-family: var(--sans); font-size: 12px; }
+.energia__numeros-horizontais { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; }
+.energia__numeros-horizontais span { display: grid; min-width: 52px; min-height: 34px; padding: 5px 10px; place-items: center; border: 1px solid rgba(9,37,53,.14); color: var(--ink); font-family: var(--sans); font-size: 14px; }
 .energia__audios--letra { flex: 1; max-width: none; margin: 0; }
 .energia__info { width: 100%; max-width: 620px; margin: 0 0 22px; border-collapse: collapse; }
 .energia__info th { padding: 10px 14px; border: 1px solid rgba(9,37,53,.12); color: var(--coral); font-family: var(--ritual); font-size: 14px; font-weight: 400; text-align: left; white-space: nowrap; }

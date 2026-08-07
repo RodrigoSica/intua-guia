@@ -92,8 +92,12 @@ export default async function EnergiaPage({
             {secao.titulo && <h2 className="energia__secao-titulo">{secao.titulo}</h2>}
 
             {secao.letras.some((l) => l.letra || l.numero) && (
-              <div className="energia__letras-verticais">
-                {secao.letras.map((par, i) => {
+              <>
+                <div className="energia__numeros-horizontais" aria-label="Números das letras em ordem">
+                  {secao.letras.map((par, i) => <span key={i}>{par.numero}</span>)}
+                </div>
+                <div className="energia__letras-verticais">
+                  {secao.letras.map((par, i) => {
                   const audiosDaLetra = audios.filter(
                     (audio) => audio.secaoId === secao.id && audio.letraIndice === i
                   );
@@ -101,7 +105,6 @@ export default async function EnergiaPage({
                     <div key={i} className="energia__letra-linha">
                       <div className="energia__letra-identidade">
                         <strong>{par.letra}</strong>
-                        <span>{par.numero}</span>
                       </div>
                       {audiosDaLetra.length > 0 && (
                         <div className="energia__audios energia__audios--letra">
@@ -112,8 +115,9 @@ export default async function EnergiaPage({
                       )}
                     </div>
                   );
-                })}
-              </div>
+                  })}
+                </div>
+              </>
             )}
 
             {secao.letras.length > 0 && (
