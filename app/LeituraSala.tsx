@@ -109,8 +109,8 @@ export default function LeituraSala({
   }
 
   function abrirWhatsAppComLink() {
-    const mensagem = `Aqui está a sua leitura de tarot ✨\n${window.location.href}`;
-    window.location.assign(`https://wa.me/?text=${encodeURIComponent(mensagem)}`);
+    const mensagem = `Aqui está a sua leitura de tarot:\n${window.location.href}`;
+    window.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
   }
 
   async function baixarPagina() {
@@ -240,7 +240,7 @@ export default function LeituraSala({
           onClick={compartilharPagina}
           disabled={compartilhando}
         >
-          {compartilhando ? "Preparando..." : "📤 Enviar por WhatsApp"}
+          {compartilhando ? "Abrindo WhatsApp..." : "💬 Compartilhar no WhatsApp"}
         </button>
         <button
           type="button"
