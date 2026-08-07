@@ -13,12 +13,13 @@ function blobParaDataUrl(blob: Blob): Promise<string> {
 
 export default function EnergiaDownloadButton({ consulenteNome }: { consulenteNome: string }) {
   const [baixando, setBaixando] = useState(false);
+  const [compartilhando, setCompartilhando] = useState(false);
 
   async function baixar() {
     setBaixando(true);
     try {
       const clone = document.documentElement.cloneNode(true) as HTMLElement;
-      clone.querySelector(".energia__baixar")?.remove();
+      clone.querySelector(".energia__acoes")?.remove();
       const folhas = Array.from(clone.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'));
       for (const folha of folhas) {
         const href = folha.getAttribute("href");
@@ -59,9 +60,20 @@ export default function EnergiaDownloadButton({ consulenteNome }: { consulenteNo
     }
   }
 
+  function compartilharNoWhatsApp() {
+    setCompartilhando(true);
+    const mensagem = `Aqui está a sua leitura vibracional do nome:\n${window.location.href}`;
+    window.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
+  }
+
   return (
+    <div className="energia__acoes">
+      <button type="button" className="button button--coral energia__compartilhar" onClick={compartilharNoWhatsApp} disabled={compartilhando}>
+        {compartilhando ? "Abrindo WhatsApp..." : "💬 Compartilhar no WhatsApp"}
+      </button>
     <button type="button" className="button button--outline energia__baixar" onClick={baixar} disabled={baixando}>
       {baixando ? "Preparando arquivo..." : "⭳ Baixar esta leitura"}
     </button>
+    </div>
   );
 }

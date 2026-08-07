@@ -568,8 +568,9 @@ footer { padding: 24px 0; background: var(--navy); }
 .leitura-sala--pronta h1 { text-align: center; }
 .leitura-sala__boasvindas { max-width: 480px; margin: 26px auto 0; color: rgba(249,236,220,.82); font-family: var(--serif); font-size: 19px; font-style: italic; font-weight: 400; line-height: 1.55; text-align: center; }
 .leitura-sala__boasvindas span { display: block; margin-top: 10px; color: var(--gold); font-family: var(--ritual); font-size: 12px; font-style: normal; letter-spacing: .08em; text-transform: uppercase; }
-.leitura-sala__baixar { margin-top: 44px; }
-.leitura-sala__baixar-aviso { margin: 10px 0 0; color: rgba(249,236,220,.55); font-size: 13px; }
+.leitura-sala__acoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 44px; }
+.leitura-sala__baixar-aviso { margin: 10px 0 0; color: rgba(249,236,220,.55); font-size: 13px; text-align: center; }
+.leitura-sala__baixar-sucesso { margin: 10px auto 0; padding: 10px 14px; border: 1px solid rgba(197,154,90,.4); border-radius: 6px; background: rgba(197,154,90,.1); color: var(--gold); font-size: 13px; max-width: 460px; text-align: center; }
 .leitura-momentos { list-style: none; margin: 40px 0 0; padding: 0; display: flex; flex-direction: column; gap: 40px; }
 .leitura-momento { padding-top: 32px; border-top: 1px solid rgba(249,236,220,.14); }
 .leitura-momento__numero { display: block; margin-bottom: 10px; color: var(--gold); font-family: var(--ritual); font-size: 11px; font-weight: 400; letter-spacing: .15em; text-transform: uppercase; }
@@ -811,7 +812,9 @@ footer { padding: 24px 0; background: var(--navy); }
 .energia__rodape { padding: 90px 0 70px; background: var(--navy); text-align: center; }
 .energia__gratidao { max-width: 760px; margin: 0 auto; color: var(--gold); font-family: var(--serif); font-size: clamp(20px,2.4vw,27px); font-weight: 500; line-height: 1.5; }
 .energia__rodape .section-mark { margin: 34px auto; }
-.energia__baixar { display: block; width: max-content; margin: 0 auto 46px; }
+.energia__acoes { display: flex; flex-direction: column; align-items: center; gap: 16px; margin: 0 auto 46px; }
+.energia__acoes .energia__baixar,
+.energia__acoes .energia__compartilhar { width: max-content; margin: 0; }
 .energia__marca { display: inline-flex; flex-direction: column; align-items: center; gap: 12px; }
 .energia__marca img { width: 132px; height: auto; }
 .energia__marca span { color: var(--gold); font-family: var(--ritual); font-size: 13px; letter-spacing: .14em; }
