@@ -80,9 +80,9 @@ export async function DELETE(
     }
     await db.delete(momentos).where(eq(momentos.leituraId, id));
 
-    // O atendimento continua no dashboard (é histórico financeiro), só perde o
-    // atalho para uma leitura que não existe mais.
-    await db.update(clientes).set({ leituraId: null }).where(eq(clientes.leituraId, id));
+    // A leitura nasce de um pré-cadastro. Se ela for apagada, o atendimento
+    // correspondente também sai do painel para não deixar um cliente órfão.
+    await db.delete(clientes).where(eq(clientes.leituraId, id));
 
     await db.delete(leituras).where(eq(leituras.id, id));
 

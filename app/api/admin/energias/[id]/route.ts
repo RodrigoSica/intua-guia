@@ -80,10 +80,9 @@ export async function DELETE(
     const { id } = await params;
     const db = getDb();
 
-    // Mesmo cuidado da exclusão de leitura: sem depender do ON DELETE SET
-    // NULL, o atendimento ficaria apontando para um documento inexistente.
-    // Ele permanece no dashboard como histórico, só perde o atalho.
-    await db.update(clientes).set({ energiaId: null }).where(eq(clientes.energiaId, id));
+    // A energia nasce de um pré-cadastro. Se ela for apagada, o atendimento
+    // correspondente também sai do painel para não deixar um cliente órfão.
+    await db.delete(clientes).where(eq(clientes.energiaId, id));
     await db.delete(energiaAudios).where(eq(energiaAudios.energiaId, id));
     await db.delete(energias).where(eq(energias.id, id));
 
