@@ -1,0 +1,1 @@
+ALTER TABLE `energia_audios` ADD `letra_indice` integer;

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import AdminEnergiaGravador, { type EnergiaAudio } from "./AdminEnergiaGravador";
-import { letrasDoNome, linhasAutomaticas, numeroDaLetra } from "../lib/energiaVibracional";
+import { letrasDoNome, linhasAutomaticas } from "../lib/energiaVibracional";
 
 // Forma das seções guardadas em `energias.secoes` (JSON). Cada seção é um
 // pedaço do nome: a grade de letras/números, quantas tabelas de apoio ela
@@ -225,64 +225,25 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
           </div>
 
           <div className="admin-energia__campo">
-            <span className="admin-energia__rotulo">Letras e números</span>
-            <div className="admin-energia__letras">
+            <span className="admin-energia__rotulo">Leitura vibracional por letra</span>
+            <div className="admin-energia__letras-verticais">
               {secao.letras.map((par, iLetra) => (
-                <div key={iLetra} className="admin-energia__coluna">
-                  <input
-                    className="admin-energia__letra"
-                    value={par.letra}
-                    maxLength={2}
-                    onChange={(e) =>
-                      mudarSecao(iSecao, {
-                        letras: secao.letras.map((p, i) =>
-                          i === iLetra
-                            ? {
-                                ...p,
-                                letra: e.target.value.toLocaleUpperCase("pt-BR"),
-                                numero: numeroDaLetra(e.target.value),
-                              }
-                            : p
-                        ),
-                      })
-                    }
-                    aria-label={`Letra ${iLetra + 1}`}
+                <div key={iLetra} className="admin-energia__letra-linha">
+                  <div className="admin-energia__letra-identidade">
+                    <span className="admin-energia__letra">{par.letra}</span>
+                    <span className="admin-energia__numero">{par.numero}</span>
+                  </div>
+                  <AdminEnergiaGravador
+                    compacto
+                    energiaId={energiaId}
+                    secaoId={secao.id}
+                    letraIndice={iLetra}
+                    audios={audios.filter((audio) => audio.secaoId === secao.id && audio.letraIndice === iLetra)}
+                    onAdicionar={adicionarAudio}
+                    onRemover={removerAudio}
                   />
-                  <input
-                    className="admin-energia__numero"
-                    value={par.numero}
-                    readOnly
-                    aria-label={`Número da letra ${iLetra + 1}`}
-                  />
-                  <button
-                    type="button"
-                    className="admin-energia__remover admin-energia__remover--coluna"
-                    onClick={() =>
-                      mudarSecao(iSecao, { letras: secao.letras.filter((_, i) => i !== iLetra) })
-                    }
-                    aria-label={`Remover coluna ${iLetra + 1}`}
-                  >
-                    ×
-                  </button>
                 </div>
               ))}
-            </div>
-            <div className="admin-energia__construtores">
-              <AdminEnergiaGravador
-                compacto
-                energiaId={energiaId}
-                secaoId={secao.id}
-                audios={audios.filter((audio) => audio.secaoId === secao.id)}
-                onAdicionar={adicionarAudio}
-                onRemover={removerAudio}
-              />
-              <button
-                type="button"
-                className="button button--outline button--small"
-                onClick={() => mudarSecao(iSecao, { letras: [...secao.letras, { letra: "", numero: "" }] })}
-              >
-                + Coluna
-              </button>
             </div>
           </div>
 
@@ -297,102 +258,6 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
               ))}
             </div>
           )}
-
-          <div className="admin-energia__campo">
-            <span className="admin-energia__rotulo">Informações complementares</span>
-            {secao.tabelas.map((tabela, iTabela) => (
-              <div key={iTabela} className="admin-energia__tabela">
-                {tabela.linhas.map((linha, iLinha) => (
-                  <div key={iLinha} className="admin-energia__linha">
-                    <input
-                      className="admin-energia__rotulo-campo"
-                      value={linha.rotulo}
-                      onChange={(e) =>
-                        mudarSecao(iSecao, {
-                          tabelas: secao.tabelas.map((t, i) =>
-                            i === iTabela
-                              ? {
-                                  linhas: t.linhas.map((l, j) =>
-                                    j === iLinha ? { ...l, rotulo: e.target.value } : l
-                                  ),
-                                }
-                              : t
-                          ),
-                        })
-                      }
-                      placeholder="Vogais: 4"
-                    />
-                    <input
-                      value={linha.valor}
-                      onChange={(e) =>
-                        mudarSecao(iSecao, {
-                          tabelas: secao.tabelas.map((t, i) =>
-                            i === iTabela
-                              ? {
-                                  linhas: t.linhas.map((l, j) =>
-                                    j === iLinha ? { ...l, valor: e.target.value } : l
-                                  ),
-                                }
-                              : t
-                          ),
-                        })
-                      }
-                      placeholder="Desenvolvimento espiritual"
-                    />
-                    <button
-                      type="button"
-                      className="admin-energia__remover"
-                      onClick={() =>
-                        mudarSecao(iSecao, {
-                          tabelas: secao.tabelas.map((t, i) =>
-                            i === iTabela ? { linhas: t.linhas.filter((_, j) => j !== iLinha) } : t
-                          ),
-                        })
-                      }
-                      aria-label="Remover linha"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-                <div className="admin-energia__tabela-acoes">
-                  <button
-                    type="button"
-                    className="button button--outline button--small"
-                    onClick={() =>
-                      mudarSecao(iSecao, {
-                        tabelas: secao.tabelas.map((t, i) =>
-                          i === iTabela ? { linhas: [...t.linhas, { rotulo: "", valor: "" }] } : t
-                        ),
-                      })
-                    }
-                  >
-                    + Linha
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-energia__remover"
-                    onClick={() =>
-                      mudarSecao(iSecao, { tabelas: secao.tabelas.filter((_, i) => i !== iTabela) })
-                    }
-                  >
-                    Remover tabela
-                  </button>
-                </div>
-              </div>
-            ))}
-            <button
-              type="button"
-              className="button button--outline button--small"
-              onClick={() =>
-                mudarSecao(iSecao, {
-                  tabelas: [...secao.tabelas, { linhas: [{ rotulo: "", valor: "" }] }],
-                })
-              }
-            >
-              + Tabela
-            </button>
-          </div>
 
           <div className="admin-energia__campo">
             <span className="admin-energia__rotulo">Texto da leitura</span>

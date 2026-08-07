@@ -2,11 +2,12 @@
 
 import { useRef, useState } from "react";
 
-export type EnergiaAudio = { id: string; secaoId: string | null; ordem: number; r2Key: string };
+export type EnergiaAudio = { id: string; secaoId: string | null; letraIndice: number | null; ordem: number; r2Key: string };
 
 type Props = {
   energiaId: string;
   secaoId?: string | null;
+  letraIndice?: number | null;
   audios: EnergiaAudio[];
   onAdicionar: (audio: EnergiaAudio) => void;
   onRemover: (id: string) => void;
@@ -16,6 +17,7 @@ type Props = {
 export default function AdminEnergiaGravador({
   energiaId,
   secaoId = null,
+  letraIndice = null,
   audios,
   onAdicionar,
   onRemover,
@@ -55,6 +57,7 @@ export default function AdminEnergiaGravador({
           const form = new FormData();
           form.append("audio", audio, "gravacao.webm");
           if (secaoId) form.append("secaoId", secaoId);
+          if (letraIndice !== null) form.append("letraIndice", String(letraIndice));
           const resposta = await fetch(`/api/admin/energias/${energiaId}/audios`, { method: "POST", body: form });
           const dados = await resposta.json();
           if (!resposta.ok) throw new Error(dados.error || "Não foi possível guardar o áudio.");
@@ -87,7 +90,7 @@ export default function AdminEnergiaGravador({
       <div className="admin-gravar">
         {!gravando ? (
           <button type="button" className="button button--outline button--small" onClick={iniciar} disabled={enviando}>
-            🎙 {enviando ? "Salvando áudio..." : "Gravar áudio"}
+            🎙 {enviando ? "Salvando áudio..." : audios.length > 0 ? "Gravar novo áudio" : "Gravar áudio"}
           </button>
         ) : (
           <button type="button" className="button button--coral button--small admin-gravar__ativo" onClick={parar}>
@@ -99,7 +102,7 @@ export default function AdminEnergiaGravador({
         <ul className="admin-midia-lista admin-midia-lista--existente">
           {audios.map((audio, indice) => (
             <li key={audio.id}>
-              <span className="admin-energia-gravador__indice">Áudio {indice + 1}</span>
+              <span className="admin-energia-gravador__indice">{letraIndice !== null ? "Voz da letra" : `Áudio ${indice + 1}`}</span>
               <audio controls preload="none" src={`/midia/${audio.r2Key}`} />
               <button type="button" onClick={() => remover(audio)} aria-label={`Remover áudio ${indice + 1}`}>×</button>
             </li>

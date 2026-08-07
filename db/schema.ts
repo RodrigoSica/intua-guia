@@ -80,6 +80,7 @@ export const energiaAudios = sqliteTable(
       .notNull()
       .references(() => energias.id, { onDelete: "cascade" }),
     secaoId: text("secao_id"),
+    letraIndice: integer("letra_indice"),
     ordem: integer("ordem").notNull(),
     r2Key: text("r2_key").notNull(),
   },

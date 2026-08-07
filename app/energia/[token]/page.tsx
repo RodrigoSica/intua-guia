@@ -92,21 +92,27 @@ export default async function EnergiaPage({
             {secao.titulo && <h2 className="energia__secao-titulo">{secao.titulo}</h2>}
 
             {secao.letras.some((l) => l.letra || l.numero) && (
-              <div className="energia__letras-wrap">
-                <table className="energia__letras">
-                  <tbody>
-                    <tr>
-                      {secao.letras.map((par, i) => (
-                        <th key={i} scope="col">{par.letra}</th>
-                      ))}
-                    </tr>
-                    <tr>
-                      {secao.letras.map((par, i) => (
-                        <td key={i}>{par.numero}</td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
+              <div className="energia__letras-verticais">
+                {secao.letras.map((par, i) => {
+                  const audiosDaLetra = audios.filter(
+                    (audio) => audio.secaoId === secao.id && audio.letraIndice === i
+                  );
+                  return (
+                    <div key={i} className="energia__letra-linha">
+                      <div className="energia__letra-identidade">
+                        <strong>{par.letra}</strong>
+                        <span>{par.numero}</span>
+                      </div>
+                      {audiosDaLetra.length > 0 && (
+                        <div className="energia__audios energia__audios--letra">
+                          {audiosDaLetra.map((audio) => (
+                            <audio key={audio.id} controls preload="none" src={`/midia/${audio.r2Key}`} aria-label={`Leitura da letra ${par.letra}`} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
 

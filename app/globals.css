@@ -718,12 +718,17 @@ footer { padding: 24px 0; background: var(--navy); }
 .admin-energia__gravador-principal { margin-top: 20px; }
 .admin-energia__construtores { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px; }
 .admin-energia-gravador { min-width: 0; }
-.admin-energia-gravador--compacto { display: contents; }
-.admin-energia-gravador--compacto .admin-midia-lista { flex-basis: 100%; width: min(100%, 520px); }
+.admin-energia-gravador--compacto { display: block; flex: 1; min-width: 220px; }
+.admin-energia-gravador--compacto .admin-midia-lista { width: 100%; }
 .admin-energia-gravador__indice { flex: 0 0 auto; color: rgba(249,236,220,.55); font-family: var(--ritual); font-size: 10px; letter-spacing: .05em; text-transform: uppercase; }
 .admin-energia-gravador .admin-midia-lista li { gap: 10px; }
 .admin-energia-gravador .admin-midia-lista audio { flex: 1; min-width: 150px; }
 .admin-energia-gravador .admin-momento-form__erro { margin-top: 10px; }
+.admin-energia__letras-verticais { display: flex; flex-direction: column; gap: 8px; max-width: 650px; }
+.admin-energia__letra-linha { display: flex; align-items: center; gap: 14px; padding: 10px 12px; border: 1px solid rgba(249,236,220,.14); border-radius: 6px; background: rgba(249,236,220,.035); }
+.admin-energia__letra-identidade { display: flex; flex: 0 0 72px; flex-direction: column; align-items: center; gap: 2px; padding-right: 12px; border-right: 1px solid rgba(249,236,220,.14); }
+.admin-energia__letra-identidade .admin-energia__letra { color: var(--coral-bright); font-family: var(--serif); font-size: 22px; font-weight: 600; line-height: 1; }
+.admin-energia__letra-identidade .admin-energia__numero { color: rgba(249,236,220,.7); font-size: 12px; }
 .admin-energia__automatico { padding: 14px; border: 1px dashed rgba(197,154,90,.32); border-radius: 6px; background: rgba(197,154,90,.05); }
 .admin-energia__linha--automatica { align-items: center; margin-bottom: 5px; }
 .admin-energia__linha--automatica span, .admin-energia__linha--automatica strong { flex: 1; padding: 9px 11px; border: 1px solid rgba(249,236,220,.14); border-radius: 5px; font-family: var(--sans); font-size: 13px; font-weight: 400; }
@@ -780,6 +785,12 @@ footer { padding: 24px 0; background: var(--navy); }
 .energia__letras { border-collapse: collapse; }
 .energia__letras th { padding: 12px 20px; border: 1px solid rgba(9,37,53,.16); color: var(--coral); font-family: var(--serif); font-size: 21px; font-weight: 600; text-align: center; }
 .energia__letras td { padding: 12px 20px; color: var(--ink); font-family: var(--sans); font-size: 16px; text-align: center; }
+.energia__letras-verticais { display: grid; gap: 8px; max-width: 720px; margin-bottom: 26px; }
+.energia__letra-linha { display: flex; align-items: center; gap: 18px; padding: 12px 14px; border: 1px solid rgba(9,37,53,.14); background: rgba(255,255,255,.2); }
+.energia__letra-identidade { display: flex; flex: 0 0 58px; flex-direction: column; align-items: center; gap: 2px; padding-right: 14px; border-right: 1px solid rgba(9,37,53,.14); }
+.energia__letra-identidade strong { color: var(--coral); font-family: var(--serif); font-size: 24px; }
+.energia__letra-identidade span { color: var(--ink); font-family: var(--sans); font-size: 12px; }
+.energia__audios--letra { flex: 1; max-width: none; margin: 0; }
 .energia__info { width: 100%; max-width: 620px; margin: 0 0 22px; border-collapse: collapse; }
 .energia__info th { padding: 10px 14px; border: 1px solid rgba(9,37,53,.12); color: var(--coral); font-family: var(--ritual); font-size: 14px; font-weight: 400; text-align: left; white-space: nowrap; }
 .energia__info td { padding: 10px 14px; border: 1px solid rgba(9,37,53,.12); font-family: var(--sans); font-size: 15px; font-weight: 300; }
