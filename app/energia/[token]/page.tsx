@@ -94,7 +94,12 @@ export default async function EnergiaPage({
             {secao.letras.some((l) => l.letra || l.numero) && (
               <>
                 <div className="energia__numeros-horizontais" aria-label="Números das letras em ordem">
-                  {secao.letras.map((par, i) => <span key={i}>{par.numero}</span>)}
+                  {secao.letras.map((par, i) => (
+                    <span key={i} className="energia__numero-par">
+                      <strong>{par.letra}</strong>
+                      <small>{par.numero}</small>
+                    </span>
+                  ))}
                 </div>
                 <div className="energia__letras-verticais">
                   {secao.letras.map((par, i) => {

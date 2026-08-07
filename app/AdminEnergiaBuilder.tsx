@@ -228,7 +228,10 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
             <span className="admin-energia__rotulo">Leitura vibracional por letra</span>
             <div className="admin-energia__numeros-horizontais" aria-label="Números das letras em ordem">
               {secao.letras.map((par, iLetra) => (
-                <span key={iLetra}>{par.numero}</span>
+                <span key={iLetra} className="admin-energia__numero-par">
+                  <strong>{par.letra}</strong>
+                  <small>{par.numero}</small>
+                </span>
               ))}
             </div>
             <div className="admin-energia__letras-verticais">
