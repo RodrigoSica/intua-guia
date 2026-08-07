@@ -333,6 +333,9 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
 
       <div className="admin-builder__link">
         <input readOnly value={link} onFocus={(e) => e.currentTarget.select()} />
+        <a className="button button--outline button--small" href={`/leitura/${leitura.token}`} target="_blank" rel="noreferrer">
+          Ver
+        </a>
         {leitura.status === "publicada" ? (
           <span className="admin__status admin__status--publicada">Publicada</span>
         ) : (
@@ -341,6 +344,8 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
           </button>
         )}
       </div>
+
+      <p className="admin-energia__salvo admin-energia__salvo--salvo">✓ Salvo</p>
 
       {erroEnvio && <p className="admin-momento-form__erro admin-builder__erro">⚠ {erroEnvio}</p>}
 
