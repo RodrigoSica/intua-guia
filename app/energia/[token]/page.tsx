@@ -159,13 +159,6 @@ export default async function EnergiaPage({
             {paragrafos(secao.texto).map((p, i) => (
               <p key={i} className="energia__texto">{p}</p>
             ))}
-            {audios.filter((audio) => audio.secaoId === secao.id).length > 0 && (
-              <div className="energia__audios">
-                {audios.filter((audio) => audio.secaoId === secao.id).map((audio, i) => (
-                  <audio key={audio.id} controls preload="none" src={`/midia/${audio.r2Key}`} aria-label={`Áudio do bloco ${i + 1}`} />
-                ))}
-              </div>
-            )}
           </div>
         </section>
       ))}
