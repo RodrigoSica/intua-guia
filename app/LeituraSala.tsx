@@ -139,6 +139,16 @@ export default function LeituraSala({
   async function compartilharPagina() {
     setCompartilhando(true);
     setErroCompartilhar("");
+
+    // No celular, o fluxo mais confiável é abrir o WhatsApp com o link da
+    // leitura. O compartilhamento de arquivos HTML pelo Web Share varia entre
+    // fabricantes e gerava a mensagem de falha do anexo.
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      abrirWhatsAppComLink();
+      setCompartilhando(false);
+      return;
+    }
+
     const arquivo = await montarArquivoLeitura().catch(() => null);
     if (!arquivo) {
       setErroCompartilhar("Não foi possível preparar o arquivo agora. Tente de novo.");
