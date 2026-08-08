@@ -20,6 +20,25 @@
 }
 
 * { box-sizing: border-box; }
+
+/* Barra de rolagem no estilo Intua Guia (Firefox). O padrão do Windows some
+   e dá lugar a um trilho navy com um polegar dourado, em qualquer elemento
+   com rolagem — não só no site, também nas tabelas do admin. */
+html { scrollbar-color: var(--gold) var(--navy-soft); scrollbar-width: thin; }
+
+/* Mesma barra de rolagem, agora no padrão WebKit/Chromium (Chrome, Edge,
+   Android) — Firefox ignora essas regras e usa scrollbar-color acima. */
+*::-webkit-scrollbar { width: 11px; height: 11px; }
+*::-webkit-scrollbar-track { background: var(--navy-soft); }
+*::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 8px; border: 2px solid var(--navy-soft); }
+*::-webkit-scrollbar-thumb:hover { background: var(--coral-bright); }
+*::-webkit-scrollbar-corner { background: var(--navy-soft); }
+
+/* As opções de um <select> abrem numa janela do próprio sistema operacional
+   (fundo branco, fora do nosso controle de estilo) — sem isso, o texto claro
+   do site fica ilegível ali dentro. */
+select option { color: var(--ink); background: var(--cream); }
+
 html { scroll-behavior: smooth; background: var(--navy); }
 body { margin: 0; background: var(--navy); color: var(--cream); font-family: var(--sans); font-size: 18px; font-weight: 300; -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-decoration: none; }
