@@ -181,8 +181,8 @@ export default function AdminClientesDashboard() {
   async function removerCliente(cliente: Cliente) {
     const aviso =
       cliente.leituraId || cliente.energiaId
-        ? `Remover ${cliente.nome} do dashboard?\n\nO trabalho dela continua publicado e o link que ela recebeu segue funcionando — sai só a linha daqui.`
-        : `Remover ${cliente.nome} do dashboard?`;
+        ? `Remover ${cliente.nome} do sistema?\n\nO trabalho dela continua publicado e o link que ela recebeu segue funcionando — sai só a linha daqui.`
+        : `Remover ${cliente.nome} do sistema?`;
     if (!window.confirm(aviso)) return;
 
     const res = await fetch(`/api/admin/clientes/${cliente.id}`, { method: "DELETE" });
