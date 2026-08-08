@@ -95,6 +95,7 @@ export default function AdminClientesDashboard() {
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("todos");
   const [filtroMes, setFiltroMes] = useState("todos");
+  const [filtroNascimento, setFiltroNascimento] = useState("todos");
 
   // Salvamentos adiados, por "idDoCliente:campo".
   const timersRef = useRef<Record<string, number>>({});
@@ -214,6 +215,15 @@ export default function AdminClientesDashboard() {
     return [...indices].sort((a, b) => a - b);
   }, [clientes]);
 
+  const mesesComNascimento = useMemo(() => {
+    const indices = new Set<number>();
+    for (const c of clientes) {
+      const i = mesIndice(c.dataNascimento);
+      if (i !== null) indices.add(i);
+    }
+    return [...indices].sort((a, b) => a - b);
+  }, [clientes]);
+
   const aniversariantes = useMemo(() => {
     const mesAtual = new Date().getMonth();
     const vistos = new Set<string>();
@@ -231,6 +241,7 @@ export default function AdminClientesDashboard() {
     return clientes.filter((c) => {
       if (filtroStatus !== "todos" && c.status !== filtroStatus) return false;
       if (filtroMes !== "todos" && String(mesIndice(c.dataAgendada)) !== filtroMes) return false;
+      if (filtroNascimento !== "todos" && String(mesIndice(c.dataNascimento)) !== filtroNascimento) return false;
       if (!termo) return true;
       const alvo = [c.nome, c.telefone, c.quemIndicou, c.instagram, c.atendimento, c.notas]
         .filter(Boolean)
@@ -238,7 +249,7 @@ export default function AdminClientesDashboard() {
         .toLocaleLowerCase("pt-BR");
       return alvo.includes(termo);
     });
-  }, [clientes, busca, filtroStatus, filtroMes]);
+  }, [clientes, busca, filtroStatus, filtroMes, filtroNascimento]);
 
   const totais = useMemo(() => {
     let recebido = 0;
@@ -286,7 +297,8 @@ export default function AdminClientesDashboard() {
 
   if (carregando) return <p className="admin__carregando">Carregando...</p>;
 
-  const filtrando = busca !== "" || filtroStatus !== "todos" || filtroMes !== "todos";
+  const filtrando =
+    busca !== "" || filtroStatus !== "todos" || filtroMes !== "todos" || filtroNascimento !== "todos";
 
   return (
     <div className="admin-clientes">
@@ -343,6 +355,12 @@ export default function AdminClientesDashboard() {
         <select value={filtroMes} onChange={(e) => setFiltroMes(e.target.value)}>
           <option value="todos">Todos os meses</option>
           {mesesComDados.map((i) => (
+            <option key={i} value={String(i)}>{MESES[i]}</option>
+          ))}
+        </select>
+        <select value={filtroNascimento} onChange={(e) => setFiltroNascimento(e.target.value)}>
+          <option value="todos">Nascimento: todos</option>
+          {mesesComNascimento.map((i) => (
             <option key={i} value={String(i)}>{MESES[i]}</option>
           ))}
         </select>
