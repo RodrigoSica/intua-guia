@@ -17,7 +17,7 @@ export default function AdminLeiturasLista({ iniciais }: { iniciais: Leitura[] }
   async function remover(leitura: Leitura) {
     if (
       !window.confirm(
-        `Apagar a leitura de ${leitura.consulenteNome}?\n\nOs áudios e as fotos são apagados junto e o link enviado para ela para de funcionar. O atendimento continua no dashboard.`
+        `Apagar a leitura de ${leitura.consulenteNome}?\n\nOs áudios e as fotos são apagados junto, o link enviado para ela para de funcionar e o atendimento sai do dashboard. Não tem como desfazer.`
       )
     ) {
       return;

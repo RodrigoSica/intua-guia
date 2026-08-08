@@ -77,7 +77,7 @@ export default function AdminEnergiaLista() {
   }
 
   async function remover(energia: Energia) {
-    if (!window.confirm(`Apagar a leitura de ${energia.consulenteNome}?\n\nO link enviado para ela deixa de funcionar. O atendimento continua no dashboard.`)) {
+    if (!window.confirm(`Apagar a leitura de ${energia.consulenteNome}?\n\nOs áudios são apagados junto, o link enviado para ela para de funcionar e o atendimento sai do dashboard. Não tem como desfazer.`)) {
       return;
     }
     const res = await fetch(`/api/admin/energias/${energia.id}`, { method: "DELETE" });
