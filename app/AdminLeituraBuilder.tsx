@@ -50,6 +50,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
   // em "Gravar áudio"/"Tirar foto" acrescenta mais um à lista deste bloco.
   const [audiosGravados, setAudiosGravados] = useState<Blob[]>([]);
   const [gravando, setGravando] = useState(false);
+  const [erroGravacao, setErroGravacao] = useState("");
   const [fotosArquivos, setFotosArquivos] = useState<File[]>([]);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -82,13 +83,20 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
   }
 
   async function iniciarGravacao() {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const recorder = new MediaRecorder(stream);
-    chunksRef.current = [];
-    recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
-    recorder.start();
-    mediaRecorderRef.current = recorder;
-    setGravando(true);
+    setErroGravacao("");
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      chunksRef.current = [];
+      recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      setGravando(true);
+    } catch {
+      setErroGravacao(
+        "Não foi possível acessar o microfone. No app, vá em Ajustes do Android > Apps > Intua Guia > Permissões > Microfone e permita o acesso."
+      );
+    }
   }
 
   // Retorna uma Promise que só resolve depois que o navegador terminou de
@@ -402,6 +410,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
               </button>
             )}
           </div>
+          {erroGravacao && <p className="admin-momento-form__erro">⚠ {erroGravacao}</p>}
           {audiosExistentes.length > 0 && (
             <ul className="admin-midia-lista admin-midia-lista--existente">
               {audiosExistentes.map((audio) => (

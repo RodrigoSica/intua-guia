@@ -192,7 +192,6 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
           }}
           placeholder="Texto de abertura do documento"
         />
-        <p className="admin-momento-form__ajuda">Uma linha em branco separa os parágrafos.</p>
         <div className="admin-energia__gravador-principal">
           <span className="admin-energia__rotulo">Áudios das orientações</span>
           <AdminEnergiaGravador
@@ -201,7 +200,6 @@ export default function AdminEnergiaBuilder({ energiaId }: { energiaId: string }
             onAdicionar={adicionarAudio}
             onRemover={removerAudio}
           />
-          <p className="admin-momento-form__ajuda">A gravação fica apenas anexada à leitura — sem transcrição ou pontos-chave.</p>
         </div>
       </section>
 

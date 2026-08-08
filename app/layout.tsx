@@ -4,6 +4,12 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Intua Guia | Tarot intuitivo e terapêutico",
   description: "Leituras de tarot para mais autoconhecimento, clareza e transformação.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Intua Guia",
+  },
 };
 
 export default function RootLayout({

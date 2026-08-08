@@ -1,0 +1,16 @@
+{
+  "name": "Intua Guia — Admin",
+  "short_name": "Intua Guia",
+  "description": "Painel administrativo da Intua Guia, para gravar e publicar leituras.",
+  "start_url": "/admin",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#002f49",
+  "theme_color": "#002f49",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/pwa/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/pwa/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/pwa/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

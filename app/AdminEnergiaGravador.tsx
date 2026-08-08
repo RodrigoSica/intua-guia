@@ -40,7 +40,9 @@ export default function AdminEnergiaGravador({
       gravadorRef.current = gravador;
       setGravando(true);
     } catch {
-      setErro("Não foi possível acessar o microfone. Verifique a permissão do navegador.");
+      setErro(
+        "Não foi possível acessar o microfone. No app, vá em Ajustes do Android > Apps > Intua Guia > Permissões > Microfone e permita o acesso."
+      );
     }
   }
 
