@@ -86,18 +86,19 @@ export async function DELETE(
       return Response.json({ error: "Cliente não encontrado." }, { status: 404 });
     }
 
-    // Apenas cadastros recentes, ainda em preparação, são removidos em cascata.
-    // Consultas já publicadas permanecem intactas como histórico de atendimento.
+    // Remover o cliente apaga tudo relacionado a ele — leitura/energia,
+    // mídia no R2, o que for. Uma vez deletado, some por completo, sem
+    // deixar registro órfão pra trás.
     const { MIDIA } = env as unknown as Env;
 
     if (cliente.leituraId) {
       const [leitura] = await db
-        .select({ id: leituras.id, status: leituras.status })
+        .select({ id: leituras.id })
         .from(leituras)
         .where(eq(leituras.id, cliente.leituraId))
         .limit(1);
 
-      if (leitura?.status === "preparando") {
+      if (leitura) {
         let cursor: string | undefined;
         do {
           const lote = await MIDIA.list({ prefix: `l/${leitura.id}/`, cursor });
@@ -122,12 +123,12 @@ export async function DELETE(
 
     if (cliente.energiaId) {
       const [energia] = await db
-        .select({ id: energias.id, status: energias.status })
+        .select({ id: energias.id })
         .from(energias)
         .where(eq(energias.id, cliente.energiaId))
         .limit(1);
 
-      if (energia?.status === "preparando") {
+      if (energia) {
         let cursor: string | undefined;
         do {
           const lote = await MIDIA.list({ prefix: `e/${energia.id}/`, cursor });

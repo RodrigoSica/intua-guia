@@ -181,7 +181,7 @@ export default function AdminClientesDashboard() {
   async function removerCliente(cliente: Cliente) {
     const aviso =
       cliente.leituraId || cliente.energiaId
-        ? `Remover ${cliente.nome} do sistema?\n\nO trabalho dela continua publicado e o link que ela recebeu segue funcionando — sai só a linha daqui.`
+        ? `Remover ${cliente.nome} do sistema?\n\nIsso apaga também a leitura, fotos e áudios dela. O link que ela recebeu para de funcionar. Não tem como desfazer.`
         : `Remover ${cliente.nome} do sistema?`;
     if (!window.confirm(aviso)) return;
 
