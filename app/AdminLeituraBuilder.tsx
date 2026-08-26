@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import FotoEditor from "./FotoEditor";
 
 type Foto = { id: string; ordem: number; r2Key: string };
 type Audio = { id: string; ordem: number; r2Key: string };
 type Momento = {
   id: string;
   ordem: number;
-  titulo: string | null;
-  resumo: string | null;
-  pontosChave: string | null;
   audios: Audio[];
   fotos: Foto[];
 };
@@ -23,6 +21,8 @@ type Leitura = {
   status: string;
 };
 
+type WakeLockLike = { release: () => Promise<void> };
+
 export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }) {
   const [leitura, setLeitura] = useState<Leitura | null>(null);
   const [momentos, setMomentos] = useState<Momento[]>([]);
@@ -33,27 +33,24 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
 
   // editandoId === null -> formulário em modo "novo bloco".
   // editandoId === id de um momento -> formulário reaproveitado para editá-lo:
-  // mesmos campos, mas título/resumo/pontos-chave vêm pré-preenchidos e as
-  // fotos/áudios já salvos aparecem para revisão (com opção de remover).
+  // as fotos/áudios já salvos aparecem para revisão (com opção de remover).
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [fotosExistentes, setFotosExistentes] = useState<Foto[]>([]);
   const [audiosExistentes, setAudiosExistentes] = useState<Audio[]>([]);
   const [fotosRemovidasIds, setFotosRemovidasIds] = useState<string[]>([]);
   const [audiosRemovidosIds, setAudiosRemovidosIds] = useState<string[]>([]);
 
-  const [titulo, setTitulo] = useState("");
-  const [resumo, setResumo] = useState("");
-  const [pontosChave, setPontosChave] = useState("");
-  const [gerando, setGerando] = useState(false);
-  const [erroGeracao, setErroGeracao] = useState("");
   // Um bloco pode ter quantos áudios e fotos a Vanessa quiser — cada clique
-  // em "Gravar áudio"/"Tirar foto" acrescenta mais um à lista deste bloco.
+  // em "Gravar áudio"/"Tirar foto"/"Anexar foto" acrescenta mais um à lista.
   const [audiosGravados, setAudiosGravados] = useState<Blob[]>([]);
   const [gravando, setGravando] = useState(false);
+  const [pausado, setPausado] = useState(false);
   const [erroGravacao, setErroGravacao] = useState("");
   const [fotosArquivos, setFotosArquivos] = useState<File[]>([]);
+  const [fotoEmEdicao, setFotoEmEdicao] = useState<File | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const wakeLockRef = useRef<WakeLockLike | null>(null);
 
   // Fotos de celular costumam vir em 3-8MB. Redimensionamos para no máximo
   // 1600px no lado maior e recomprimimos em WebP, o que derruba o tamanho
@@ -82,6 +79,24 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     return new File([blob], novoNome, { type: "image/webp" });
   }
 
+  // Mantém a tela acesa enquanto grava — sem isso, o celular apaga a tela
+  // sozinho no meio de uma gravação longa (o áudio continua, mas ela não
+  // sabe que continua). Sem suporte (ex: iOS mais antigo) ou permissão
+  // negada, a gravação funciona igual, só a tela pode apagar.
+  async function solicitarTelaAcesa() {
+    try {
+      const nav = navigator as Navigator & { wakeLock?: { request: (tipo: "screen") => Promise<WakeLockLike> } };
+      wakeLockRef.current = (await nav.wakeLock?.request("screen")) ?? null;
+    } catch {
+      wakeLockRef.current = null;
+    }
+  }
+
+  function liberarTelaAcesa() {
+    wakeLockRef.current?.release().catch(() => {});
+    wakeLockRef.current = null;
+  }
+
   async function iniciarGravacao() {
     setErroGravacao("");
     try {
@@ -92,11 +107,27 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
       recorder.start();
       mediaRecorderRef.current = recorder;
       setGravando(true);
+      setPausado(false);
+      await solicitarTelaAcesa();
     } catch {
       setErroGravacao(
         "Não foi possível acessar o microfone. No app, vá em Ajustes do Android > Apps > Intua Guia > Permissões > Microfone e permita o acesso."
       );
     }
+  }
+
+  function pausarGravacao() {
+    const recorder = mediaRecorderRef.current;
+    if (!recorder || recorder.state !== "recording") return;
+    recorder.pause();
+    setPausado(true);
+  }
+
+  function retomarGravacao() {
+    const recorder = mediaRecorderRef.current;
+    if (!recorder || recorder.state !== "paused") return;
+    recorder.resume();
+    setPausado(false);
   }
 
   // Retorna uma Promise que só resolve depois que o navegador terminou de
@@ -110,6 +141,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
       if (!recorder || recorder.state === "inactive") { resolve(null); return; }
       recorder.onstop = () => {
         recorder.stream.getTracks().forEach((track) => track.stop());
+        liberarTelaAcesa();
         resolve(new Blob(chunksRef.current, { type: "audio/webm" }));
       };
       recorder.stop();
@@ -119,39 +151,9 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
   async function pararGravacao() {
     const blob = await pararGravacaoEObterAudio();
     setGravando(false);
+    setPausado(false);
     if (!blob) return;
-    const atualizados = [...audiosGravados, blob];
-    setAudiosGravados(atualizados);
-    await gerarConteudo(atualizados);
-  }
-
-  // Título, resumo e pontos-chave nascem da IA a partir do que foi gravado —
-  // a Vanessa só revisa e ajusta antes de salvar o bloco. "Gerar novamente"
-  // chama esta mesma função por baixo, usando os áudios que já estão no bloco.
-  // Em modo edição, só considera áudio gravado NESTA sessão (o já salvo
-  // continua no bloco do jeito que está, a menos que ela regrave).
-  async function gerarConteudo(audiosParaGerar: Blob[]) {
-    if (audiosParaGerar.length === 0) return;
-    setGerando(true);
-    setErroGeracao("");
-    try {
-      const form = new FormData();
-      audiosParaGerar.forEach((blob, i) => form.append("audios", blob, `gravacao-${i + 1}.webm`));
-      const res = await fetch(`/api/admin/leituras/${leituraId}/momentos/gerar`, { method: "POST", body: form });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        setErroGeracao(data?.error || `Não foi possível gerar o conteúdo (erro ${res.status}). Pode preencher na mão.`);
-        return;
-      }
-      const data = await res.json();
-      setTitulo(data.conteudo.titulo || "");
-      setResumo(data.conteudo.resumo || "");
-      setPontosChave(data.conteudo.pontosChave || "");
-    } catch {
-      setErroGeracao("Não foi possível gerar o conteúdo. Confira sua conexão ou preencha na mão.");
-    } finally {
-      setGerando(false);
-    }
+    setAudiosGravados((atual) => [...atual, blob]);
   }
 
   async function carregar() {
@@ -169,23 +171,16 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
 
   function limparFormulario() {
     setEditandoId(null);
-    setTitulo("");
-    setResumo("");
-    setPontosChave("");
     setFotosExistentes([]);
     setAudiosExistentes([]);
     setFotosRemovidasIds([]);
     setAudiosRemovidosIds([]);
     setAudiosGravados([]);
     setFotosArquivos([]);
-    setErroGeracao("");
   }
 
   function iniciarEdicao(momento: Momento) {
     setEditandoId(momento.id);
-    setTitulo(momento.titulo ?? "");
-    setResumo(momento.resumo ?? "");
-    setPontosChave(momento.pontosChave ?? "");
     setFotosExistentes(momento.fotos);
     setAudiosExistentes(momento.audios);
     setFotosRemovidasIds([]);
@@ -193,14 +188,13 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     setAudiosGravados([]);
     setFotosArquivos([]);
     setErroEnvio("");
-    setErroGeracao("");
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   }
 
   async function apagarBloco(momento: Momento) {
     if (
       !window.confirm(
-        `Apagar o bloco "${momento.titulo || "sem título"}"?\n\nOs áudios e fotos dele somem junto. Não dá pra desfazer.`
+        `Apagar o bloco ${String(momento.ordem).padStart(2, "0")}?\n\nOs áudios e fotos dele somem junto. Não dá pra desfazer.`
       )
     ) {
       return;
@@ -224,13 +218,11 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     if (gravando) {
       const blob = await pararGravacaoEObterAudio();
       setGravando(false);
+      setPausado(false);
       if (blob) audiosParaEnviar = [...audiosGravados, blob];
     }
 
     const form = new FormData();
-    form.set("titulo", titulo);
-    form.set("resumo", resumo);
-    form.set("pontosChave", pontosChave);
     audiosParaEnviar.forEach((blob, i) => form.append("audios", blob, `gravacao-${i + 1}.webm`));
     for (const foto of fotosArquivos) form.append("fotos", foto);
 
@@ -252,11 +244,10 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
       limparFormulario();
       await carregar();
     } else {
-      // Falhou: título, resumo e fotos já continuam no estado (nunca foram
-      // tocados). Só precisa recolocar o áudio, caso uma gravação em
-      // andamento tenha sido incorporada a audiosParaEnviar acima. Assim o
-      // próximo clique em "Adicionar bloco" simplesmente tenta de novo, sem
-      // o usuário ter que preencher nada outra vez.
+      // Falhou: as fotos já continuam no estado (nunca foram tocadas). Só
+      // precisa recolocar o áudio, caso uma gravação em andamento tenha sido
+      // incorporada a audiosParaEnviar acima. Assim o próximo clique em
+      // "Adicionar bloco" simplesmente tenta de novo, sem preencher nada de novo.
       setAudiosGravados(audiosParaEnviar);
     }
     setEnviando(false);
@@ -271,13 +262,11 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     if (gravando) {
       const blob = await pararGravacaoEObterAudio();
       setGravando(false);
+      setPausado(false);
       if (blob) audiosParaEnviar = [...audiosGravados, blob];
     }
 
     const form = new FormData();
-    form.set("titulo", titulo);
-    form.set("resumo", resumo);
-    form.set("pontosChave", pontosChave);
     fotosRemovidasIds.forEach((id) => form.append("removerFotos", id));
     audiosRemovidosIds.forEach((id) => form.append("removerAudios", id));
     audiosParaEnviar.forEach((blob, i) => form.append("audios", blob, `gravacao-${i + 1}.webm`));
@@ -367,14 +356,10 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
         {momentos.map((momento) => (
           <li key={momento.id} className={`admin-momento ${editandoId === momento.id ? "admin-momento--editando" : ""}`}>
             <span className="admin-momento__ordem">{String(momento.ordem).padStart(2, "0")}</span>
-            <div>
-              {momento.titulo && <strong>{momento.titulo}</strong>}
-              {momento.resumo && <p>{momento.resumo}</p>}
-              {momento.pontosChave && <p className="admin-momento__pontos">{momento.pontosChave}</p>}
-              <div className="admin-momento__midia">
-                {momento.audios.length > 0 && <span>🎙 {momento.audios.length} áudio(s)</span>}
-                {momento.fotos.length > 0 && <span>🖼 {momento.fotos.length} foto(s)</span>}
-              </div>
+            <div className="admin-momento__midia">
+              {momento.audios.length > 0 && <span>🎙 {momento.audios.length} áudio(s)</span>}
+              {momento.fotos.length > 0 && <span>🖼 {momento.fotos.length} foto(s)</span>}
+              {momento.audios.length === 0 && momento.fotos.length === 0 && <span>Bloco vazio</span>}
             </div>
             <div className="admin-momento__acoes">
               <button type="button" className="admin-momento__editar" onClick={() => iniciarEdicao(momento)}>
@@ -394,7 +379,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
         </h2>
         <p className="admin-momento-form__ajuda">
           {editandoId
-            ? "Ajuste o texto, remova o que não quiser ou grave/tire mais mídia para este bloco."
+            ? "Remova o que não quiser ou grave/tire mais mídia para este bloco."
             : "Um bloco é um momento da leitura: quantas cartas e áudios você quiser, juntos."}
         </p>
         <label>
@@ -405,9 +390,20 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
                 🎙 Gravar áudio
               </button>
             ) : (
-              <button type="button" className="button button--coral button--small admin-gravar__ativo" onClick={pararGravacao}>
-                ⏹ Parar gravação
-              </button>
+              <>
+                {!pausado ? (
+                  <button type="button" className="button button--outline button--small" onClick={pausarGravacao}>
+                    ⏸ Pausar
+                  </button>
+                ) : (
+                  <button type="button" className="button button--outline button--small" onClick={retomarGravacao}>
+                    ▶ Continuar
+                  </button>
+                )}
+                <button type="button" className="button button--coral button--small admin-gravar__ativo" onClick={pararGravacao}>
+                  ⏹ Parar gravação
+                </button>
+              </>
             )}
           </div>
           {erroGravacao && <p className="admin-momento-form__erro">⚠ {erroGravacao}</p>}
@@ -442,32 +438,6 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
           )}
         </label>
 
-        <p className="admin-momento-form__ajuda">
-          Título, resumo e pontos-chave são gerados a partir do áudio gravado acima.
-          Revise e ajuste à vontade antes de salvar.
-        </p>
-        {erroGeracao && <p className="admin-momento-form__erro">⚠ {erroGeracao}</p>}
-        <label>
-          <span>Título {gerando && "— gerando..."}</span>
-          <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Gerado após gravar o áudio" disabled={gerando} />
-        </label>
-        <label>
-          <span>Resumo {gerando && "— gerando..."}</span>
-          <textarea rows={2} value={resumo} onChange={(e) => setResumo(e.target.value)} placeholder="Gerado após gravar o áudio" disabled={gerando} />
-        </label>
-        <label>
-          <span>Pontos-chave {gerando && "— gerando..."}</span>
-          <textarea rows={3} value={pontosChave} onChange={(e) => setPontosChave(e.target.value)} placeholder="Gerado após gravar o áudio" disabled={gerando} />
-        </label>
-        <button
-          type="button"
-          className="button button--outline button--small"
-          onClick={() => gerarConteudo(audiosGravados)}
-          disabled={gerando || audiosGravados.length === 0}
-        >
-          {gerando ? "Gerando..." : "🪄 Gerar novamente"}
-        </button>
-
         <label>
           <span>Fotos das cartas ({fotosExistentes.length + fotosArquivos.length})</span>
           <div className="admin-gravar">
@@ -478,18 +448,34 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
             >
               📷 Tirar foto
             </button>
+            <button
+              type="button"
+              className="button button--outline button--small"
+              onClick={() => document.getElementById("input-galeria")?.click()}
+            >
+              🖼 Anexar foto
+            </button>
             <input
               id="input-camera"
               type="file"
               accept="image/*"
               capture="environment"
               hidden
-              onChange={async (e) => {
+              onChange={(e) => {
                 const novaFoto = e.target.files?.[0];
                 e.target.value = "";
-                if (!novaFoto) return;
-                const comprimida = await comprimirFoto(novaFoto);
-                setFotosArquivos((atual) => [...atual, comprimida]);
+                if (novaFoto) setFotoEmEdicao(novaFoto);
+              }}
+            />
+            <input
+              id="input-galeria"
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(e) => {
+                const novaFoto = e.target.files?.[0];
+                e.target.value = "";
+                if (novaFoto) setFotoEmEdicao(novaFoto);
               }}
             />
           </div>
@@ -538,6 +524,18 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
           )}
         </div>
       </form>
+
+      {fotoEmEdicao && (
+        <FotoEditor
+          foto={fotoEmEdicao}
+          onCancelar={() => setFotoEmEdicao(null)}
+          onConfirmar={async (arquivoEditado) => {
+            const comprimida = await comprimirFoto(arquivoEditado);
+            setFotosArquivos((atual) => [...atual, comprimida]);
+            setFotoEmEdicao(null);
+          }}
+        />
+      )}
     </div>
   );
 }

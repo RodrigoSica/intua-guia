@@ -7,9 +7,6 @@ type Audio = { id: string; ordem: number; r2Key: string };
 type Momento = {
   id: string;
   ordem: number;
-  titulo: string | null;
-  resumo: string | null;
-  pontosChave: string | null;
   fotos: Foto[];
   audios: Audio[];
 };
@@ -199,8 +196,6 @@ export default function LeituraSala({
             <span className="leitura-momento__numero">
               Momento {index + 1} de {momentos.length}
             </span>
-            {momento.titulo && <h2>{momento.titulo}</h2>}
-            {momento.resumo && <p className="leitura-momento__isca">{momento.resumo}</p>}
             {momento.fotos.length > 0 && (
               <div className="leitura-momento__fotos">
                 {momento.fotos.map((foto) => (
@@ -221,12 +216,6 @@ export default function LeituraSala({
                 {momento.audios.map((audio) => (
                   <audio key={audio.id} controls preload="none" src={`/midia/${audio.r2Key}`} />
                 ))}
-              </div>
-            )}
-            {momento.pontosChave && (
-              <div className="leitura-momento__pontos">
-                <p className="leitura-momento__pontos-rotulo">Pontos-chave deste momento</p>
-                <p className="leitura-momento__pontos-texto">{momento.pontosChave}</p>
               </div>
             )}
           </li>

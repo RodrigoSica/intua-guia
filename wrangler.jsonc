@@ -34,11 +34,5 @@
   // Armazena os áudios e fotos das leituras (ver docs/plano-sala-de-leitura.md).
   "r2_buckets": [
     { "binding": "MIDIA", "bucket_name": "intua-guia-midia" }
-  ],
-  // Workers AI: transcreve o áudio da leitura e gera título/resumo/pontos-chave
-  // (ver lib/ai/leituraConteudo.ts). Sem custo de conta separada — mesmo binding
-  // de conta Cloudflare, tier gratuito por padrão.
-  "ai": {
-    "binding": "AI"
-  }
+  ]
 }
