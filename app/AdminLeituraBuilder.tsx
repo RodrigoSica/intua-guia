@@ -295,6 +295,16 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
   }
 
   async function publicar() {
+    // O incidente que motivou este aviso: ela gravou áudio e tirou foto, mas
+    // nunca clicou em "Adicionar bloco"/"Salvar alterações" — o rascunho só
+    // existia na memória do navegador. Ao publicar (ou tentar), nada daquilo
+    // ia pra leitura, e ao atualizar a página o rascunho sumiu de vez.
+    if (temRascunhoNaoSalvo) {
+      const continuar = window.confirm(
+        'Este bloco tem áudio ou foto que ainda não foi salvo — clique em "Adicionar bloco" (ou "Salvar alterações") antes de publicar, ou esse conteúdo não vai aparecer na leitura e pode se perder.\n\nPublicar mesmo assim?'
+      );
+      if (!continuar) return;
+    }
     setPublicando(true);
     setErroEnvio("");
     try {
@@ -316,6 +326,10 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
   if (!leitura) return <p className="admin__carregando">Leitura não encontrada.</p>;
 
   const link = typeof window !== "undefined" ? `${window.location.origin}/leitura/${leitura.token}` : "";
+  // Áudio/foto ainda não enviados ao servidor — gravando, gravado mas não
+  // salvo, anexado mas não salvo, ou removido mas a remoção não confirmada.
+  const temRascunhoNaoSalvo =
+    gravando || audiosGravados.length > 0 || fotosArquivos.length > 0 || fotosRemovidasIds.length > 0 || audiosRemovidosIds.length > 0;
 
   return (
     <div className="admin-builder">
@@ -346,6 +360,13 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
           </button>
         )}
       </div>
+
+      {leitura.status !== "publicada" && momentos.length === 0 && (
+        <p className="admin-momento-form__erro admin-builder__erro">
+          ⚠ Ainda não há nenhum bloco salvo — grave o áudio ou tire a foto abaixo e clique em
+          &ldquo;Adicionar bloco&rdquo; antes de publicar. O botão &ldquo;Publicar&rdquo; só libera depois disso.
+        </p>
+      )}
 
       <p className="admin-energia__salvo admin-energia__salvo--salvo">✓ Salvo</p>
 
