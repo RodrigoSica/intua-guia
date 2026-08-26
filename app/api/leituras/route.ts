@@ -9,6 +9,7 @@ const TIPOS_LEITURA = [
   "Duas Perguntas",
   "Mandala Astrológica",
   "Tiragem Cigana",
+  "Personalizada",
 ];
 
 function gerarToken() {

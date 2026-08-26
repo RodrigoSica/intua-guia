@@ -10,6 +10,7 @@ const TIPOS_LEITURA = [
   "Duas Perguntas",
   "Mandala Astrológica",
   "Tiragem Cigana",
+  "Personalizada",
 ];
 
 // Mesmo formulário público de /solicitar, mais os campos de negócio que só

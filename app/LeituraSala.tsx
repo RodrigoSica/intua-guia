@@ -20,11 +20,29 @@ function blobParaDataUrl(blob: Blob): Promise<string> {
   });
 }
 
+// Uma frase de abertura por tipo de leitura, no lugar do "Aqui está a sua
+// leitura de tarot" genérico — cada tipo tem seu próprio tom na mensagem que
+// chega no WhatsApp da consulente. Tipo fora da lista (ex: um novo criado
+// depois) cai no texto padrão em MENSAGEM_PADRAO.
+const MENSAGENS_POR_TIPO: Record<string, string> = {
+  "Se Desvendando": "Sua leitura Se Desvendando está pronta ✨ Um convite pra olhar pra dentro e se reconhecer um pouco mais.",
+  "Círculo de Afetos": "Sua leitura Círculo de Afetos está pronta ✨ As cartas falaram sobre os laços que te cercam.",
+  "Caminhos e Desafios": "Sua leitura Caminhos e Desafios está pronta ✨ Um olhar sobre o caminho à frente e o que pode te ajudar a atravessá-lo.",
+  "Equilíbrio Energético": "Sua leitura de Equilíbrio Energético está pronta ✨ Um cuidado com as suas energias nesse momento.",
+  "Duas Perguntas": "Sua leitura de Duas Perguntas está pronta ✨ As cartas responderam com carinho o que você trouxe.",
+  "Mandala Astrológica": "Sua Mandala Astrológica está pronta ✨ Um retrato de como os astros se organizam pra você agora.",
+  "Tiragem Cigana": "Sua Tiragem Cigana está pronta ✨ As cartas trouxeram mensagens diretas pro seu momento.",
+  "Personalizada": "Sua leitura de tarot personalizada está pronta ✨ Preparada especialmente pro seu momento.",
+};
+const MENSAGEM_PADRAO = "Sua leitura de tarot está pronta ✨";
+
 export default function LeituraSala({
   consulenteNome,
+  tipoLeitura,
   momentos,
 }: {
   consulenteNome: string;
+  tipoLeitura: string;
   momentos: Momento[];
 }) {
   const [fotoAberta, setFotoAberta] = useState<string | null>(null);
@@ -106,7 +124,8 @@ export default function LeituraSala({
   }
 
   function abrirWhatsAppComLink() {
-    const mensagem = `Aqui está a sua leitura de tarot:\n${window.location.href}`;
+    const abertura = MENSAGENS_POR_TIPO[tipoLeitura] ?? MENSAGEM_PADRAO;
+    const mensagem = `${abertura}\n${window.location.href}`;
     window.location.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
   }
 

@@ -66,7 +66,7 @@ export default async function LeituraPage({
         <h1>Olá, {leitura.consulenteNome.split(" ")[0]}</h1>
         <span className="section-mark" aria-hidden="true">✦</span>
 
-        <LeituraSala consulenteNome={leitura.consulenteNome} momentos={momentosCompletos} />
+        <LeituraSala consulenteNome={leitura.consulenteNome} tipoLeitura={leitura.tipoLeitura} momentos={momentosCompletos} />
       </div>
     </main>
   );

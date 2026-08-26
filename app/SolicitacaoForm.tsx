@@ -10,6 +10,7 @@ const TIPOS_LEITURA = [
   "Duas Perguntas",
   "Mandala Astrológica",
   "Tiragem Cigana",
+  "Personalizada",
 ];
 
 export default function SolicitacaoForm() {

@@ -560,7 +560,7 @@ export default function AdminClientesDashboard() {
         <option value="Duas Perguntas" />
         <option value="Mandala Astrológica" />
         <option value="Tiragem Cigana" />
-        <option value="Personalizado" />
+        <option value="Personalizada" />
       </datalist>
       {/* Quem indicou é quase sempre outra consulente já cadastrada — sugerir
           os nomes existentes evita a mesma pessoa virar três grafias diferentes. */}
