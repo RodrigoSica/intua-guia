@@ -101,7 +101,12 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     setErroGravacao("");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+      // Sem isso, o navegador escolhe o bitrate sozinho — em alguns celulares
+      // isso sai bem mais alto do que voz precisa (o servidor chegou a
+      // recusar um bloco com erro 413, "arquivo grande demais"). 32kbps é de
+      // sobra para fala clara e deixa o áudio de um bloco inteiro na casa de
+      // poucos MB, mesmo com vários minutos gravados.
+      const recorder = new MediaRecorder(stream, { audioBitsPerSecond: 32000 });
       chunksRef.current = [];
       recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
       recorder.start();
@@ -191,6 +196,16 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   }
 
+  // 413 = bloco grande demais para o servidor aceitar de uma vez (geralmente
+  // áudio de vários minutos). Sem esse caso especial, ela via só "erro 413" —
+  // sem entender que é tamanho, nem o que fazer a respeito.
+  function mensagemErroEnvio(status: number): string {
+    if (status === 413) {
+      return "Esse bloco ficou grande demais para enviar de uma vez (provavelmente o áudio é muito longo). Tente dividir em blocos menores — grave em partes mais curtas, salvando um bloco a cada vez, em vez de tudo junto.";
+    }
+    return `Não foi possível salvar (erro ${status}). Tente novamente — nada foi perdido.`;
+  }
+
   async function apagarBloco(momento: Momento) {
     if (
       !window.confirm(
@@ -234,7 +249,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
     try {
       const res = await fetch(`/api/admin/leituras/${leituraId}/momentos`, { method: "POST", body: form });
       ok = res.ok;
-      if (!ok) setErroEnvio(`Não foi possível salvar (erro ${res.status}). Tente novamente — nada foi perdido.`);
+      if (!ok) setErroEnvio(mensagemErroEnvio(res.status));
     } catch {
       setErroEnvio("Não foi possível salvar. Confira sua conexão e tente novamente — nada foi perdido.");
     }
@@ -279,7 +294,7 @@ export default function AdminLeituraBuilder({ leituraId }: { leituraId: string }
         body: form,
       });
       ok = res.ok;
-      if (!ok) setErroEnvio(`Não foi possível salvar (erro ${res.status}). Tente novamente — nada foi perdido.`);
+      if (!ok) setErroEnvio(mensagemErroEnvio(res.status));
     } catch {
       setErroEnvio("Não foi possível salvar. Confira sua conexão e tente novamente — nada foi perdido.");
     }
